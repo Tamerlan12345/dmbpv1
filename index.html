@@ -3,23 +3,252 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Ассистент</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Чат-бот на n8n</title>
+    <style>
+        /* Общие стили для страницы */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Контейнер для всего чата */
+        .chat-container {
+            width: 90%;
+            max-width: 600px;
+            height: 80vh;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Заголовок чата */
+        .chat-header {
+            background-color: #007bff;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.2em;
+        }
+
+        /* Окно с сообщениями */
+        #chat-box {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Стили для всех сообщений */
+        .message {
+            padding: 10px 15px;
+            border-radius: 18px;
+            max-width: 75%;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        /* Сообщение от пользователя */
+        .user-message {
+            background-color: #007bff;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        /* Сообщение от бота */
+        .bot-message {
+            background-color: #e9eaf0;
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        /* Индикатор печати */
+        .typing-indicator {
+            align-self: flex-start;
+            color: #888;
+            font-style: italic;
+        }
+
+        /* Форма для ввода сообщения */
+        #chat-form {
+            display: flex;
+            border-top: 1px solid #ddd;
+            padding: 15px;
+            background-color: #fdfdfd;
+        }
+
+        /* Поле ввода текста */
+        #user-input {
+            flex-grow: 1;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            padding: 10px 15px;
+            font-size: 1em;
+            margin-right: 10px;
+        }
+        
+        #user-input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        /* Кнопка отправки */
+        #chat-form button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            cursor: pointer;
+            font-size: 1.4em;
+            transition: background-color 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #chat-form button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
+
     <div class="chat-container">
         <div class="chat-header">
-            <h2>Ассистент по документам</h2>
-            <p>Я отвечаю на вопросы на основе загруженных файлов.</p>
+            Ассистент-методолог
         </div>
-        <div class="chat-messages" id="chat-messages">
-            <div class="message assistant">Привет, я Сенти! Чем могу помочь?</div>
+        <div id="chat-box">
+            <div class="message bot-message">Здравствуйте! Чем могу помочь?</div>
         </div>
-        <div class="chat-input-form">
-            <input type="text" id="user-input" placeholder="Введите ваш вопрос...">
-            <button id="send-button">Отправить</button>
-        </div>
+        <form id="chat-form">
+            <input type="text" id="user-input" placeholder="Введите ваш вопрос..." autocomplete="off">
+            <button type="submit" aria-label="Отправить">➔</button>
+        </form>
     </div>
-    <script src="script.js"></script>
+
+    <script>
+        // --- НАСТРОЙКА ---
+        // Замените ВАШ_N8N_URL на адрес вашего инстанса n8n
+        const webhookUrl = 'https://n8n-tamerlan1234.amvera.io/webhook/45adedfa-179e-403a-9eb2-20dbd6c2fb99';
+        // -----------------
+
+        // Генерируем уникальный ID для этой сессии чата при загрузке страницы
+        const sessionId = Date.now().toString() + Math.random().toString(36).substring(2);
+
+        // Получаем доступ к элементам HTML
+        const chatBox = document.getElementById('chat-box');
+        const chatForm = document.getElementById('chat-form');
+        const userInput = document.getElementById('user-input');
+
+        /**
+         * Функция для добавления сообщения в окно чата
+         * @param {string} text - Текст сообщения
+         * @param {string} sender - Отправитель ('user' или 'bot')
+         */
+        function addMessage(text, sender) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', sender === 'user' ? 'user-message' : 'bot-message');
+            messageElement.textContent = text;
+            chatBox.appendChild(messageElement);
+            // Автоматически прокручиваем вниз
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+        
+        /**
+         * Показывает индикатор "печатает..."
+         */
+        function showTypingIndicator() {
+            const indicator = document.createElement('div');
+            indicator.id = 'typing-indicator';
+            indicator.classList.add('message', 'typing-indicator');
+            indicator.textContent = 'Ассистент печатает...';
+            chatBox.appendChild(indicator);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        /**
+         * Удаляет индикатор "печатает..."
+         */
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+
+        // Обрабатываем отправку формы
+        chatForm.addEventListener('submit', async (event) => {
+            // Предотвращаем стандартное поведение формы (перезагрузку страницы)
+            event.preventDefault();
+
+            const userText = userInput.value.trim();
+            if (userText === '') {
+                return; // Не отправляем пустые сообщения
+            }
+
+            // Отображаем сообщение пользователя и очищаем поле ввода
+            addMessage(userText, 'user');
+            userInput.value = '';
+            
+            // Показываем индикатор печати
+            showTypingIndicator();
+
+            try {
+                // Отправляем запрос на Webhook в n8n
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    // Отправляем и сообщение, и ID сессии
+                    body: JSON.stringify({ message: userText, sessionId: sessionId }),
+                });
+
+                // Удаляем индикатор сразу после получения ответа
+                removeTypingIndicator();
+
+                if (!response.ok) {
+                    // Если сервер ответил ошибкой (например, 404 или 500)
+                    throw new Error(`Сервер n8n ответил с ошибкой: ${response.status} ${response.statusText}`);
+                }
+                
+                // Сначала получаем ответ как текст, чтобы проверить, не пустой ли он
+                const responseText = await response.text();
+                
+                if (!responseText) {
+                    // Если ответ пустой
+                    throw new Error('Получен пустой ответ от сервера n8n. Проверьте выполнения (executions) в n8n.');
+                }
+
+                // Теперь, когда мы знаем, что ответ не пустой, пытаемся его обработать как JSON
+                const data = JSON.parse(responseText);
+
+                const botResponse = data[0].output || 'Не удалось извлечь ответ из данных.';
+                
+                // Отображаем ответ бота
+                addMessage(botResponse, 'bot');
+
+            } catch (error) {
+                console.error('Ошибка при отправке запроса:', error);
+                removeTypingIndicator();
+                // Выводим более детальное сообщение об ошибке прямо в чат
+                addMessage(`Произошла ошибка: ${error.message}`, 'bot');
+            }
+        });
+
+    </script>
 </body>
 </html>
