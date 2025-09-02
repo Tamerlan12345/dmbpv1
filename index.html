@@ -131,7 +131,7 @@
             Ассистент-методолог
         </div>
         <div id="chat-box">
-            <div class="message bot-message">Здравствуйте! Чем могу помочь?</div>
+            <div class="message bot-message">Здравствуйте! Я AI-агент СЕНТИ :)  «Методолог-Консультант», встроенный в корпоративную систему знаний компании Сентрас Иншуранс.</div>
         </div>
         <form id="chat-form">
             <input type="text" id="user-input" placeholder="Введите ваш вопрос..." autocomplete="off">
@@ -141,35 +141,29 @@
 
     <script>
         // --- НАСТРОЙКА ---
-        // Замените ВАШ_N8N_URL на адрес вашего инстанса n8n
+
         const webhookUrl = 'https://n8n-tamerlan1234.amvera.io/webhook/45adedfa-179e-403a-9eb2-20dbd6c2fb99';
         // -----------------
 
-        // Генерируем уникальный ID для этой сессии чата при загрузке страницы
+
         const sessionId = Date.now().toString() + Math.random().toString(36).substring(2);
 
-        // Получаем доступ к элементам HTML
+
         const chatBox = document.getElementById('chat-box');
         const chatForm = document.getElementById('chat-form');
         const userInput = document.getElementById('user-input');
 
-        /**
-         * Функция для добавления сообщения в окно чата
-         * @param {string} text - Текст сообщения
-         * @param {string} sender - Отправитель ('user' или 'bot')
-         */
+
         function addMessage(text, sender) {
             const messageElement = document.createElement('div');
             messageElement.classList.add('message', sender === 'user' ? 'user-message' : 'bot-message');
             messageElement.textContent = text;
             chatBox.appendChild(messageElement);
-            // Автоматически прокручиваем вниз
+
             chatBox.scrollTop = chatBox.scrollHeight;
         }
         
-        /**
-         * Показывает индикатор "печатает..."
-         */
+
         function showTypingIndicator() {
             const indicator = document.createElement('div');
             indicator.id = 'typing-indicator';
@@ -199,7 +193,7 @@
                 return; // Не отправляем пустые сообщения
             }
 
-            // Отображаем сообщение пользователя и очищаем поле ввода
+
             addMessage(userText, 'user');
             userInput.value = '';
             
