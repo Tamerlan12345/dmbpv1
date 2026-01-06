@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Centy AI — Centras Insurance</title>
+    <title>AI-агент Centras Insurance</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
         .chat-container { width: 100%; max-width: 500px; height: 85vh; background: white; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; }
@@ -12,17 +12,18 @@
         .message { padding: 12px 16px; border-radius: 15px; max-width: 85%; line-height: 1.5; font-size: 0.95em; white-space: pre-wrap; }
         .user-message { background: #007bff; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
         .bot-message { background: white; color: #333; align-self: flex-start; border: 1px solid #e0e0e0; border-bottom-left-radius: 2px; }
+        /* КНОПКИ */
         .options-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px; align-self: flex-start; padding-left: 20px; }
         .opt-btn { background: white; color: #007bff; border: 1px solid #007bff; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-size: 0.9em; transition: 0.2s; }
-        .opt-btn:hover { background: #007bff; color: white; transform: scale(1.05); }
+        .opt-btn:hover { background: #007bff; color: white; transform: translateY(-2px); }
         #chat-form { display: flex; padding: 20px; background: white; border-top: 1px solid #eee; }
         #user-input { flex-grow: 1; border: 1px solid #ddd; border-radius: 25px; padding: 12px 20px; outline: none; }
-        #chat-form button { background: #007bff; color: white; border: none; border-radius: 50%; width: 45px; height: 45px; margin-left: 10px; cursor: pointer; transition: 0.3s; }
+        #chat-form button { background: #007bff; color: white; border: none; border-radius: 50%; width: 45px; height: 45px; margin-left: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
     <div class="chat-container">
-        <div class="chat-header">Сенти — Страховой эксперт</div>
+        <div class="chat-header">Сенти — Ваш страховой эксперт</div>
         <div id="chat-box">
             <div class="message bot-message">👋 Здравствуйте! Я Сенти, интеллектуальный помощник «Сентрас Иншуранс».
 
@@ -30,7 +31,7 @@
 
 🔹 Нажмите **«Список»**, чтобы увидеть доступные программы.
 🔹 Выберите нужный документ, и я отвечу на любые вопросы.
-🔹 Вы можете просто написать название программы (например, «Сенти»).</div>
+🔹 Для возврата к списку напишите **"Список"**.</div>
         </div>
         <form id="chat-form">
             <input type="text" id="user-input" placeholder="Введите Ваш вопрос..." autocomplete="off">
@@ -47,6 +48,7 @@
             if (!text) return;
             addMessage(text, 'user');
             
+            // Удаляем старые кнопки
             const oldOptions = document.querySelector('.options-container');
             if (oldOptions) oldOptions.remove();
 
@@ -63,7 +65,7 @@
                     renderButtons(data.options);
                 }
             } catch (error) {
-                addMessage('Ошибка связи с сервером.', 'bot');
+                addMessage('Ошибка связи.', 'bot');
             }
         }
 
@@ -96,7 +98,7 @@
             input.value = '';
         };
 
-        // АВТОМАТИЧЕСКАЯ КНОПКА СПИСОК ПРИ СТАРТЕ
+        // СТАРТОВАЯ КНОПКА
         window.onload = () => renderButtons(["Список"]);
     </script>
 </body>
