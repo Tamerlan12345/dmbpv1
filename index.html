@@ -3,35 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI-агент Сенти</title>
+    <title>AI-агент Centras Insurance</title>
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f4f7f6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
         }
-
         .chat-container {
-            width: 90%;
-            max-width: 600px;
-            height: 80vh;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            height: 85vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
         .chat-header {
-            background-color: #007bff;
+            background: #007bff;
             color: white;
-            padding: 15px;
+            padding: 20px;
             text-align: center;
-            font-size: 1.2em;
+            font-weight: bold;
+            font-size: 1.1em;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         #chat-box {
             flex-grow: 1;
@@ -39,98 +40,79 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
+            background-color: #f9f9f9;
         }
         .message {
-            padding: 10px 15px;
-            border-radius: 18px;
+            padding: 12px 16px;
+            border-radius: 15px;
             max-width: 85%;
-            line-height: 1.4;
-            word-wrap: break-word;
-            white-space: pre-wrap; /* Чтобы корректно отображать переносы строк */
+            line-height: 1.5;
+            font-size: 0.95em;
+            white-space: pre-wrap;
         }
-
         .user-message {
-            background-color: #007bff;
+            background: #007bff;
             color: white;
             align-self: flex-end;
-            border-bottom-right-radius: 4px;
+            border-bottom-right-radius: 2px;
         }
-
         .bot-message {
-            background-color: #e9eaf0;
+            background: #ffffff;
             color: #333;
             align-self: flex-start;
-            border-bottom-left-radius: 4px;
+            border-bottom-left-radius: 2px;
+            border: 1px solid #e0e0e0;
         }
-
-        .typing-indicator {
-            align-self: flex-start;
-            color: #888;
-            font-style: italic;
-            font-size: 0.9em;
-        }
-
         #chat-form {
             display: flex;
-            border-top: 1px solid #ddd;
-            padding: 15px;
-            background-color: #fdfdfd;
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #eee;
         }
-
         #user-input {
             flex-grow: 1;
-            border: 1px solid #ccc;
-            border-radius: 20px;
-            padding: 10px 15px;
-            font-size: 1em;
-            margin-right: 10px;
-        }
-        
-        #user-input:focus {
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            padding: 12px 20px;
             outline: none;
-            border-color: #007bff;
+            transition: 0.3s;
         }
-
+        #user-input:focus { border-color: #007bff; }
         #chat-form button {
-            background-color: #007bff;
+            background: #007bff;
             color: white;
             border: none;
             border-radius: 50%;
-            width: 44px;
-            height: 44px;
+            width: 45px;
+            height: 45px;
+            margin-left: 10px;
             cursor: pointer;
-            font-size: 1.4em;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            transition: 0.3s;
         }
+        #chat-form button:hover { transform: scale(1.1); background: #0056b3; }
     </style>
 </head>
 <body>
-
     <div class="chat-container">
-        <div class="chat-header">
-            AI-агент «Сентрас Иншуранс»
-        </div>
+        <div class="chat-header">Сенти — Ваш страховой эксперт</div>
         <div id="chat-box">
-            <div class="message bot-message">Здравствуйте! Я Сенти, AI-агент. 
-Я помогу вам разобраться в программах страхования.
+            <div class="message bot-message">👋 Здравствуйте! Я Сенти, интеллектуальный помощник «Сентрас Иншуранс».
 
-🔹 Напишите **"список"**, чтобы увидеть доступные документы.
-🔹 Выберите номер программы и задавайте вопросы.</div>
+Я помогу Вам найти информацию в правилах и программах страхования.
+
+🔹 Чтобы увидеть список доступных программ, напишите: **«Список»**.
+🔹 После этого выберите номер программы и я отвечу на любые вопросы по ней.
+🔹 Для возврата к списку напишите **"Список"** и выберите нужный документ. </div>
         </div>
         <form id="chat-form">
-            <input type="text" id="user-input" placeholder="Введите ваш вопрос..." autocomplete="off">
+            <input type="text" id="user-input" placeholder="Задайте Ваш вопрос..." autocomplete="off">
             <button type="submit">➔</button>
         </form>
     </div>
 
     <script>
-        // Ссылка на ваш новый бэкенд на Railway
         const webhookUrl = 'https://rag-cic-production.up.railway.app/webhook';
-
-        // Создаем уникальный ID пользователя для сессии (чтобы бот помнил выбранную программу)
         const userId = 'user_' + Math.random().toString(36).substring(7);
 
         const chatBox = document.getElementById('chat-box');
@@ -138,63 +120,31 @@
         const userInput = document.getElementById('user-input');
 
         function addMessage(text, sender) {
-            const messageElement = document.createElement('div');
-            messageElement.classList.add('message', sender === 'user' ? 'user-message' : 'bot-message');
-            messageElement.textContent = text;
-            chatBox.appendChild(messageElement);
+            const el = document.createElement('div');
+            el.classList.add('message', sender === 'user' ? 'user-message' : 'bot-message');
+            el.textContent = text;
+            chatBox.appendChild(el);
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        function showTypingIndicator() {
-            const indicator = document.createElement('div');
-            indicator.id = 'typing-indicator';
-            indicator.classList.add('message', 'typing-indicator');
-            indicator.textContent = 'Сенти думает...';
-            chatBox.appendChild(indicator);
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-
-        function removeTypingIndicator() {
-            const indicator = document.getElementById('typing-indicator');
-            if (indicator) indicator.remove();
-        }
-
-        chatForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
-
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
             const text = userInput.value.trim();
             if (!text) return;
 
             addMessage(text, 'user');
             userInput.value = '';
-            showTypingIndicator();
 
             try {
                 const response = await fetch(webhookUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        message: text, 
-                        user_id: userId 
-                    }),
+                    body: JSON.stringify({ message: text, user_id: userId }),
                 });
-
-                removeTypingIndicator();
-
-                if (!response.ok) {
-                    throw new Error('Ошибка сервера: ' + response.status);
-                }
-
                 const data = await response.json();
-                
-                // ИСПРАВЛЕНО: берем данные из поля reply
-                const botResponse = data.reply || 'Извините, я не смог сформулировать ответ.';
-                addMessage(botResponse, 'bot');
-
+                addMessage(data.reply || 'Извините, возникла ошибка.', 'bot');
             } catch (error) {
-                console.error('Error:', error);
-                removeTypingIndicator();
-                addMessage('Ошибка связи с сервером. Попробуйте позже.', 'bot');
+                addMessage('Ошибка связи с сервером.', 'bot');
             }
         });
     </script>
