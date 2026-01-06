@@ -5,101 +5,109 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI-агент Centras Insurance</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .chat-container { width: 100%; max-width: 500px; height: 85vh; background: white; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; }
-        .chat-header { background: #007bff; color: white; padding: 20px; text-align: center; font-weight: bold; font-size: 1.1em; }
-        #chat-box { flex-grow: 1; padding: 20px; overflow-y: auto; background-color: #f9f9f9; display: flex; flex-direction: column; gap: 12px; }
-        .message { padding: 12px 16px; border-radius: 15px; max-width: 85%; line-height: 1.5; font-size: 0.95em; white-space: pre-wrap; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .chat-container { width: 100%; max-width: 500px; height: 90vh; background: white; border-radius: 20px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); position: relative; }
+        .chat-header { background: #007bff; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
+        .feedback-btn { background: rgba(255,255,255,0.2); border: 1px solid white; color: white; padding: 5px 12px; border-radius: 15px; cursor: pointer; font-size: 0.8em; }
+        .feedback-btn:hover { background: white; color: #007bff; }
+        #chat-box { flex-grow: 1; padding: 20px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 10px; }
+        .message { padding: 12px 16px; border-radius: 18px; max-width: 85%; font-size: 0.95em; line-height: 1.5; white-space: pre-wrap; }
         .user-message { background: #007bff; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
-        .bot-message { background: white; color: #333; align-self: flex-start; border: 1px solid #e0e0e0; border-bottom-left-radius: 2px; }
-        /* КНОПКИ */
-        .options-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px; align-self: flex-start; padding-left: 20px; }
-        .opt-btn { background: white; color: #007bff; border: 1px solid #007bff; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-size: 0.9em; transition: 0.2s; }
-        .opt-btn:hover { background: #007bff; color: white; transform: translateY(-2px); }
-        #chat-form { display: flex; padding: 20px; background: white; border-top: 1px solid #eee; }
-        #user-input { flex-grow: 1; border: 1px solid #ddd; border-radius: 25px; padding: 12px 20px; outline: none; }
-        #chat-form button { background: #007bff; color: white; border: none; border-radius: 50%; width: 45px; height: 45px; margin-left: 10px; cursor: pointer; }
+        .bot-message { background: white; border: 1px solid #e2e8f0; align-self: flex-start; border-bottom-left-radius: 2px; }
+        .options-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px; align-self: flex-start; }
+        .opt-btn { background: white; color: #007bff; border: 1px solid #007bff; padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 0.85em; transition: 0.2s; }
+        .opt-btn:hover { background: #007bff; color: white; }
+        #chat-form { display: flex; padding: 15px; background: white; border-top: 1px solid #edf2f7; }
+        #user-input { flex-grow: 1; border: 1px solid #e2e8f0; border-radius: 25px; padding: 10px 20px; outline: none; }
+        #send-btn { background: #007bff; color: white; border: none; border-radius: 50%; width: 42px; height: 42px; margin-left: 10px; cursor: pointer; }
+        /* MODAL */
+        #feedback-modal { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 100; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 25px; border-radius: 20px; width: 80%; text-align: center; }
+        .modal-content textarea { width: 100%; height: 80px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; padding: 10px; font-family: inherit; }
+        .modal-content select { width: 100%; padding: 10px; border-radius: 10px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
     <div class="chat-container">
-        <div class="chat-header">Сенти — Ваш страховой эксперт</div>
-        <div id="chat-box">
-            <div class="message bot-message">👋 Здравствуйте! Я Сенти, интеллектуальный помощник «Сентрас Иншуранс».
-
-Я помогу Вам найти информацию в правилах и программах страхования.
-
-🔹 Нажмите **«Список»**, чтобы увидеть доступные программы.
-🔹 Выберите нужный документ, и я отвечу на любые вопросы.
-🔹 Для возврата к списку напишите **"Список"**.</div>
+        <div class="chat-header">
+            <span>Сенти AI</span>
+            <button class="feedback-btn" onclick="toggleModal(true)">Обратная связь</button>
         </div>
+        <div id="chat-box"></div>
         <form id="chat-form">
             <input type="text" id="user-input" placeholder="Введите Ваш вопрос..." autocomplete="off">
-            <button type="submit">➔</button>
+            <button type="submit" id="send-btn">➔</button>
         </form>
+        <div id="feedback-modal">
+            <div class="modal-content">
+                <h3>Ваш отзыв</h3>
+                <select id="f-rating">
+                    <option value="5">⭐⭐⭐⭐⭐ (Отлично)</option>
+                    <option value="4">⭐⭐⭐⭐ (Хорошо)</option>
+                    <option value="3">⭐⭐⭐ (Средне)</option>
+                    <option value="2">⭐⭐ (Плохо)</option>
+                </select>
+                <textarea id="f-msg" placeholder="Что мы можем улучшить?"></textarea>
+                <button onclick="sendFeedback()" style="background:#28a745; color:white; border:none; padding:10px 20px; border-radius:10px; cursor:pointer;">Отправить</button>
+                <button onclick="toggleModal(false)" style="background:none; border:none; color:#666; margin-top:10px; cursor:pointer;">Отмена</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        const webhookUrl = 'https://rag-cic-production.up.railway.app/webhook';
-        const userId = 'user_' + Math.random().toString(36).substring(7);
-        const chatBox = document.getElementById('chat-box');
+        const url = 'https://rag-cic-production.up.railway.app';
+        const uid = 'user_' + Math.random().toString(36).substring(7);
+        const box = document.getElementById('chat-box');
 
-        async function sendMessage(text) {
-            if (!text) return;
-            addMessage(text, 'user');
+        async function send(msg) {
+            if (!msg) return;
+            add(msg, 'user');
+            const oldOpts = document.querySelector('.options-container');
+            if (oldOpts) oldOpts.remove();
             
-            // Удаляем старые кнопки
-            const oldOptions = document.querySelector('.options-container');
-            if (oldOptions) oldOptions.remove();
-
             try {
-                const response = await fetch(webhookUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: text, user_id: userId }),
-                });
-                const data = await response.json();
-                addMessage(data.reply, 'bot');
-                
-                if (data.options && data.options.length > 0) {
-                    renderButtons(data.options);
-                }
-            } catch (error) {
-                addMessage('Ошибка связи.', 'bot');
-            }
+                const r = await fetch(`${url}/webhook`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: msg, user_id: uid }) });
+                const d = await r.json();
+                add(d.reply, 'bot');
+                if (d.options) renderOpts(d.options);
+            } catch (e) { add('Ошибка связи.', 'bot'); }
         }
 
-        function renderButtons(opts) {
+        function renderOpts(opts) {
             const container = document.createElement('div');
             container.className = 'options-container';
-            opts.forEach(opt => {
-                const btn = document.createElement('button');
-                btn.className = 'opt-btn';
-                btn.textContent = opt;
-                btn.onclick = () => { container.remove(); sendMessage(opt); };
-                container.appendChild(btn);
+            opts.forEach(o => {
+                const b = document.createElement('button'); b.className = 'opt-btn'; b.textContent = o;
+                b.onclick = () => { container.remove(); send(o); }; container.appendChild(b);
             });
-            chatBox.appendChild(container);
-            chatBox.scrollTop = chatBox.scrollHeight;
+            box.appendChild(container); box.scrollTop = box.scrollHeight;
         }
 
-        function addMessage(t, s) {
-            const el = document.createElement('div');
-            el.className = `message ${s}-message`;
-            el.textContent = t;
-            chatBox.appendChild(el);
-            chatBox.scrollTop = chatBox.scrollHeight;
+        function add(t, s) {
+            const d = document.createElement('div'); d.className = `message ${s}-message`;
+            d.textContent = t; box.appendChild(d); box.scrollTop = box.scrollHeight;
         }
 
         document.getElementById('chat-form').onsubmit = (e) => {
-            e.preventDefault();
-            const input = document.getElementById('user-input');
-            sendMessage(input.value.trim());
-            input.value = '';
+            e.preventDefault(); const i = document.getElementById('user-input');
+            send(i.value.trim()); i.value = '';
         };
 
-        // СТАРТОВАЯ КНОПКА
-        window.onload = () => renderButtons(["Список"]);
+        // FEEDBACK LOGIC
+        function toggleModal(show) { document.getElementById('feedback-modal').style.display = show ? 'flex' : 'none'; }
+        async function sendFeedback() {
+            const message = document.getElementById('f-msg').value;
+            const rating = document.getElementById('f-rating').value;
+            await fetch(`${url}/feedback`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: uid, message, rating }) });
+            toggleModal(false);
+            alert('Спасибо за Ваш отзыв!');
+            document.getElementById('f-msg').value = '';
+        }
+
+        window.onload = () => {
+            add("👋 Здравствуйте! Я Сенти. Нажмите «Список», чтобы выбрать программу страхования.", "bot");
+            renderOpts(["Список"]);
+        };
     </script>
 </body>
 </html>
