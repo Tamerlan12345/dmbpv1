@@ -6,7 +6,7 @@
     <title>AI-агент Centras Insurance</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .chat-container { width: 100%; max-width: 500px; height: 90vh; background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); position: relative; display: flex; flex-direction: column; overflow: hidden; }
+        .chat-container { width: 100%; max-width: 500px; height: 90vh; background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; position: relative; }
         .chat-header { background: #007bff; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
         .feedback-btn { background: rgba(255,255,255,0.2); border: 1px solid white; color: white; padding: 5px 12px; border-radius: 15px; cursor: pointer; font-size: 0.8em; }
         #chat-box { flex-grow: 1; padding: 20px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 12px; }
@@ -18,17 +18,15 @@
         #chat-form { display: flex; padding: 20px; background: white; border-top: 1px solid #edf2f7; }
         #user-input { flex-grow: 1; border: 1px solid #e2e8f0; border-radius: 25px; padding: 12px 20px; outline: none; }
         #send-btn { background: #007bff; color: white; border: none; border-radius: 50%; width: 45px; height: 45px; margin-left: 10px; cursor: pointer; }
-        /* OVERLAY */
         #f-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
         .f-card { background: white; padding: 25px; border-radius: 20px; width: 80%; text-align: center; }
         textarea { width: 100%; height: 80px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; padding: 10px; font-family: inherit; }
-        select { width: 100%; padding: 10px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #ddd; }
     </style>
 </head>
 <body>
     <div class="chat-container">
         <div class="chat-header">
-            <span>Сенти AI-ассистент</span>
+            <span>Сенти AI</span>
             <button class="feedback-btn" onclick="toggleF(true)">Обратная связь</button>
         </div>
         <div id="chat-box">
@@ -36,71 +34,46 @@
 
 Я помогу Вам найти информацию в правилах и программах страхования.
 
-🔹 Чтобы увидеть список доступных программ, нажмите кнопку: **«Список»**.
+🔹 Чтобы увидеть список программ, нажмите кнопку: **«Список»**.
 🔹 Вы можете просто написать название программы (например, «Сенти»).
-🔹 После выбора я отвечу на любые вопросы по правилам.
-🔹 Для возврата к списку напишите **«Список»**.</div>
+🔹 После выбора я отвечу на вопросы по ней.
+🔹 Для возврата напишите **«Список»**.</div>
         </div>
         <form id="chat-form">
             <input type="text" id="user-input" placeholder="Задайте Ваш вопрос..." autocomplete="off">
             <button type="submit" id="send-btn">➔</button>
         </form>
-
         <div id="f-overlay">
             <div class="f-card">
                 <h3>Ваш отзыв</h3>
                 <select id="f-rating"><option value="5">⭐⭐⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="3">⭐⭐⭐</option></select>
-                <textarea id="f-msg" placeholder="Ваш комментарий..."></textarea>
+                <textarea id="f-msg" placeholder="Комментарий..."></textarea>
                 <button onclick="sendF()" style="background:#28a745; color:white; padding:10px; width:100%; border:none; border-radius:10px; cursor:pointer;">Отправить</button>
                 <button onclick="toggleF(false)" style="margin-top:10px; background:none; border:none; color:#666; cursor:pointer;">Закрыть</button>
             </div>
         </div>
     </div>
-
     <script>
         const url = 'https://rag-cic-production.up.railway.app';
         const uid = 'user_' + Math.random().toString(36).substring(7);
         const box = document.getElementById('chat-box');
-
         async function send(msg) {
-            if (!msg) return;
-            add(msg, 'user');
-            document.querySelector('.options-container')?.remove();
+            if (!msg) return; add(msg, 'user'); document.querySelector('.options-container')?.remove();
             try {
                 const r = await fetch(`${url}/webhook`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: msg, user_id: uid }) });
-                const d = await r.json();
-                add(d.reply, 'bot');
-                if (d.options) renderBtns(d.options);
+                const d = await r.json(); add(d.reply, 'bot'); if (d.options) renderB(d.options);
             } catch (e) { add('Ошибка связи.', 'bot'); }
         }
-
-        function renderBtns(opts) {
-            const container = document.createElement('div');
-            container.className = 'options-container';
-            opts.forEach(o => {
-                const b = document.createElement('button'); b.className = 'opt-btn'; b.textContent = o;
-                b.onclick = () => { container.remove(); send(o); }; container.appendChild(b);
-            });
-            box.appendChild(container); box.scrollTop = box.scrollHeight;
+        function renderB(opts) {
+            const c = document.createElement('div'); c.className = 'options-container';
+            opts.forEach(o => { const b = document.createElement('button'); b.className = 'opt-btn'; b.textContent = o; b.onclick = () => { c.remove(); send(o); }; c.appendChild(b); });
+            box.appendChild(c); box.scrollTop = box.scrollHeight;
         }
-
-        function add(t, s) {
-            const d = document.createElement('div'); d.className = `message ${s}-message`;
-            d.textContent = t; box.appendChild(d); box.scrollTop = box.scrollHeight;
-        }
-
-        document.getElementById('chat-form').onsubmit = (e) => {
-            e.preventDefault(); const i = document.getElementById('user-input');
-            send(i.value.trim()); i.value = '';
-        };
-
+        function add(t, s) { const d = document.createElement('div'); d.className = `message ${s}-message`; d.textContent = t; box.appendChild(d); box.scrollTop = box.scrollHeight; }
+        document.getElementById('chat-form').onsubmit = (e) => { e.preventDefault(); const i = document.getElementById('user-input'); send(i.value.trim()); i.value = ''; };
         function toggleF(s) { document.getElementById('f-overlay').style.display = s ? 'flex' : 'none'; }
-        async function sendF() {
-            await fetch(`${url}/feedback`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: uid, message: document.getElementById('f-msg').value, rating: document.getElementById('f-rating').value }) });
-            alert('Спасибо!'); toggleF(false);
-        }
-
-        window.onload = () => renderBtns(["Список"]);
+        async function sendF() { await fetch(`${url}/feedback`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: uid, message: document.getElementById('f-msg').value, rating: document.getElementById('f-rating').value }) }); alert('Спасибо!'); toggleF(false); }
+        window.onload = () => renderB(["Список"]);
     </script>
 </body>
 </html>
