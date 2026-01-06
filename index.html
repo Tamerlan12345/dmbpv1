@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Чат-бот на n8n</title>
+    <title>AI-агент Сенти</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -44,9 +44,10 @@
         .message {
             padding: 10px 15px;
             border-radius: 18px;
-            max-width: 75%;
+            max-width: 85%;
             line-height: 1.4;
             word-wrap: break-word;
+            white-space: pre-wrap; /* Чтобы корректно отображать переносы строк */
         }
 
         .user-message {
@@ -67,6 +68,7 @@
             align-self: flex-start;
             color: #888;
             font-style: italic;
+            font-size: 0.9em;
         }
 
         #chat-form {
@@ -76,7 +78,6 @@
             background-color: #fdfdfd;
         }
 
-        /* Поле ввода текста */
         #user-input {
             flex-grow: 1;
             border: 1px solid #ccc;
@@ -91,7 +92,6 @@
             border-color: #007bff;
         }
 
-        /* Кнопка отправки */
         #chat-form button {
             background-color: #007bff;
             color: white;
@@ -101,14 +101,9 @@
             height: 44px;
             cursor: pointer;
             font-size: 1.4em;
-            transition: background-color 0.3s;
             display: flex;
             justify-content: center;
             align-items: center;
-        }
-
-        #chat-form button:hover {
-            background-color: #0056b3;
         }
     </style>
 </head>
@@ -119,119 +114,89 @@
             AI-агент «Сентрас Иншуранс»
         </div>
         <div id="chat-box">
-            <div class="message bot-message">Здравствуйте! Я Сенти, AI-агент «Сентрас Иншуранс». Я знаю всё о наших страховых продуктах.
-🔹 Хотите узнать список программ? Напишите: «Что в базе?» 
-🔹 Есть конкретный вопрос? Задайте его, но обязательно укажите название программы в тексте. 
-Пока идет загрузка программ но я уже знаю многое.</div>
+            <div class="message bot-message">Здравствуйте! Я Сенти, AI-агент. 
+Я помогу вам разобраться в программах страхования.
+
+🔹 Напишите **"список"**, чтобы увидеть доступные документы.
+🔹 Выберите номер программы и задавайте вопросы.</div>
         </div>
         <form id="chat-form">
             <input type="text" id="user-input" placeholder="Введите ваш вопрос..." autocomplete="off">
-            <button type="submit" aria-label="Отправить">➔</button>
+            <button type="submit">➔</button>
         </form>
     </div>
 
     <script>
-
+        // Ссылка на ваш новый бэкенд на Railway
         const webhookUrl = 'https://rag-cic-production.up.railway.app/webhook';
 
-
-        const sessionId = Date.now().toString() + Math.random().toString(36).substring(2);
-
+        // Создаем уникальный ID пользователя для сессии (чтобы бот помнил выбранную программу)
+        const userId = 'user_' + Math.random().toString(36).substring(7);
 
         const chatBox = document.getElementById('chat-box');
         const chatForm = document.getElementById('chat-form');
         const userInput = document.getElementById('user-input');
-
 
         function addMessage(text, sender) {
             const messageElement = document.createElement('div');
             messageElement.classList.add('message', sender === 'user' ? 'user-message' : 'bot-message');
             messageElement.textContent = text;
             chatBox.appendChild(messageElement);
-
             chatBox.scrollTop = chatBox.scrollHeight;
         }
-        
 
         function showTypingIndicator() {
             const indicator = document.createElement('div');
             indicator.id = 'typing-indicator';
             indicator.classList.add('message', 'typing-indicator');
-            indicator.textContent = 'Ассистент печатает...';
+            indicator.textContent = 'Сенти думает...';
             chatBox.appendChild(indicator);
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        /**
-         * Удаляет индикатор "печатает..."
-         */
         function removeTypingIndicator() {
             const indicator = document.getElementById('typing-indicator');
-            if (indicator) {
-                indicator.remove();
-            }
+            if (indicator) indicator.remove();
         }
 
-        // Обрабатываем отправку формы
         chatForm.addEventListener('submit', async (event) => {
-            // Предотвращаем стандартное поведение формы (перезагрузку страницы)
             event.preventDefault();
 
-            const userText = userInput.value.trim();
-            if (userText === '') {
-                return; // Не отправляем пустые сообщения
-            }
+            const text = userInput.value.trim();
+            if (!text) return;
 
-
-            addMessage(userText, 'user');
+            addMessage(text, 'user');
             userInput.value = '';
-            
-            // Показываем индикатор печати
             showTypingIndicator();
 
             try {
-                // Отправляем запрос на Webhook в n8n
                 const response = await fetch(webhookUrl, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    // Отправляем и сообщение, и ID сессии
-                    body: JSON.stringify({ message: userText, sessionId: sessionId }),
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        message: text, 
+                        user_id: userId 
+                    }),
                 });
 
-                // Удаляем индикатор сразу после получения ответа
                 removeTypingIndicator();
 
                 if (!response.ok) {
-                    // Если сервер ответил ошибкой (например, 404 или 500)
-                    throw new Error(`Сервер n8n ответил с ошибкой: ${response.status} ${response.statusText}`);
-                }
-                
-                // Сначала получаем ответ как текст, чтобы проверить, не пустой ли он
-                const responseText = await response.text();
-                
-                if (!responseText) {
-                    // Если ответ пустой
-                    throw new Error('Получен пустой ответ от сервера n8n. Проверьте выполнения (executions) в n8n.');
+                    throw new Error('Ошибка сервера: ' + response.status);
                 }
 
-                // Теперь, когда мы знаем, что ответ не пустой, пытаемся его обработать как JSON
-                const data = JSON.parse(responseText);
-
-                const botResponse = data[0].output || 'Не удалось извлечь ответ из данных.';
+                const data = await response.json();
                 
-                // Отображаем ответ бота
+                // ИСПРАВЛЕНО: берем данные из поля reply
+                const botResponse = data.reply || 'Извините, я не смог сформулировать ответ.';
                 addMessage(botResponse, 'bot');
 
             } catch (error) {
-                console.error('Ошибка при отправке запроса:', error);
+                console.error('Error:', error);
                 removeTypingIndicator();
-                // Выводим более детальное сообщение об ошибке прямо в чат
-                addMessage(`Произошла ошибка: ${error.message}`, 'bot');
+                addMessage('Ошибка связи с сервером. Попробуйте позже.', 'bot');
             }
         });
-
     </script>
 </body>
 </html>
