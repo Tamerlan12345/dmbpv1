@@ -2,99 +2,252 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Centy AI — Методолог</title>
     <style>
-        :root { --blue: #007bff; --bg: #f4f7f9; --text: #2d3748; }
-        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; color: var(--text); }
+        :root { 
+            --blue: #007bff; 
+            --blue-dark: #0056b3;
+            --bg: #f4f7f9; 
+            --text: #2d3748;
+            --gray-input: #f8f9fa;
+        }
         
-        /* Исправлена структура контейнера */
-        .chat-container { width: 100%; max-width: 500px; height: 92vh; background: white; border-radius: 28px; box-shadow: 0 20px 60px rgba(0,0,0,0.08); display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        body { 
+            font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+            background: var(--bg); 
+            margin: 0; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            height: 100dvh; /* Фикс для мобильных браузеров */
+            color: var(--text); 
+        }
         
-        /* --- УЛУЧШЕННАЯ ШАПКА --- */
+        /* Контейнер: на ПК скругленный, на мобильном - во весь экран */
+        .chat-container { 
+            width: 100%; 
+            max-width: 460px; /* Чуть уже для удобства чтения */
+            height: 95vh; 
+            background: white; 
+            border-radius: 20px; 
+            box-shadow: 0 15px 50px rgba(0,0,0,0.1); 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden; 
+            position: relative; 
+        }
+
+        /* Адаптив для телефонов */
+        @media (max-width: 480px) {
+            .chat-container {
+                height: 100dvh;
+                max-width: 100%;
+                border-radius: 0;
+            }
+        }
+        
+        /* --- ШАПКА (Улучшенная) --- */
         .header { 
-            background: linear-gradient(135deg, #007bff 0%, #0062cc 100%); /* Градиент для глубины */
+            background: var(--blue); 
             color: white; 
-            padding: 18px 25px; 
+            padding: 12px 16px; /* Компактнее */
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
-            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2); /* Тень под шапкой */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             z-index: 10;
         }
 
-        .brand-box {
+        .brand-group {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .header h1 { 
-            font-size: 1.25rem; /* Чуть крупнее */
+            font-size: 1.1rem; 
             margin: 0; 
-            font-weight: 800; /* Жирный шрифт */
-            letter-spacing: -0.5px;
+            font-weight: 800; 
+            letter-spacing: -0.3px;
         }
-
-        /* Стиль для "Методолог" */
-        .badge-role {
-            background: rgba(255, 255, 255, 0.2);
-            font-size: 0.75rem;
-            padding: 4px 10px;
-            border-radius: 12px;
+        
+        .badge {
+            background: rgba(255,255,255,0.2);
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 10px;
             font-weight: 500;
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(255,255,255,0.1);
+            letter-spacing: 0.3px;
         }
-        /* ------------------------ */
 
-        .f-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 0.75em; transition: 0.2s; font-weight: 600; }
+        .f-btn { 
+            background: rgba(255,255,255,0.15); 
+            border: 1px solid rgba(255,255,255,0.3); 
+            color: white; 
+            padding: 6px 12px; 
+            border-radius: 14px; 
+            cursor: pointer; 
+            font-size: 0.75rem; 
+            transition: 0.2s; 
+            font-weight: 600;
+        }
         .f-btn:hover { background: white; color: var(--blue); }
         
-        #chat-box { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
-        .msg { padding: 14px 18px; border-radius: 20px; max-width: 85%; font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap; animation: slideUp 0.3s ease; }
-        .u-msg { background: var(--blue); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
-        .b-msg { background: #f1f5f9; align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid #e2e8f0; }
-        .opt-box { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px; }
-        .opt-btn { background: white; color: var(--blue); border: 1.5px solid var(--blue); padding: 8px 16px; border-radius: 18px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
-        #form { display: flex; padding: 15px 20px; background: white; border-top: 1px solid #eee; gap: 10px; }
-        #input { flex-grow: 1; border: 2px solid #edf2f7; border-radius: 15px; padding: 12px; outline: none; }
-        #btn { background: var(--blue); color: white; border: none; border-radius: 15px; width: 45px; cursor: pointer; font-weight: bold; }
-        #f-overlay { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
-        .f-card { background: white; padding: 30px; border-radius: 24px; width: 80%; text-align: center; }
-        textarea { width: 100%; height: 90px; margin: 15px 0; border: 1px solid #ddd; border-radius: 12px; padding: 10px; box-sizing: border-box; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* --- ЧАТ --- */
+        #chat-box { 
+            flex-grow: 1; 
+            padding: 15px; 
+            overflow-y: auto; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 8px; /* Меньше разрыв между сообщениями */
+        }
+        
+        /* Скроллбар */
+        #chat-box::-webkit-scrollbar { width: 4px; }
+        #chat-box::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 4px; }
+
+        .msg { 
+            padding: 10px 14px; 
+            border-radius: 16px; 
+            max-width: 88%; 
+            font-size: 0.9rem; 
+            line-height: 1.4; /* Плотнее текст */
+            word-wrap: break-word;
+            animation: slideUp 0.3s ease; 
+        }
+        
+        .u-msg { 
+            background: var(--blue); 
+            color: white; 
+            align-self: flex-end; 
+            border-bottom-right-radius: 2px; 
+        }
+        
+        .b-msg { 
+            background: #f1f5f9; 
+            align-self: flex-start; 
+            border-bottom-left-radius: 2px; 
+            border: 1px solid #e2e8f0; 
+            color: var(--text);
+        }
+
+        /* Убираем <br> и используем отступы для параграфов */
+        .msg p { margin: 6px 0; }
+        .msg p:first-child { margin-top: 0; }
+        .msg p:last-child { margin-bottom: 0; }
+        .msg ul { margin: 4px 0 8px 0; padding-left: 20px; }
+        .msg li { margin-bottom: 4px; }
+
+        /* Кнопки опций */
+        .opt-box { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+        .opt-btn { 
+            background: white; 
+            color: var(--blue); 
+            border: 1px solid var(--blue); 
+            padding: 6px 12px; 
+            border-radius: 14px; 
+            cursor: pointer; 
+            font-size: 0.8rem; 
+            font-weight: 600; 
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        /* Футер (Ввод) */
+        #form { 
+            display: flex; 
+            padding: 10px 14px; 
+            background: white; 
+            border-top: 1px solid #eee; 
+            gap: 8px; 
+            align-items: center;
+        }
+        #input { 
+            flex-grow: 1; 
+            border: 1px solid transparent; 
+            border-radius: 20px; 
+            padding: 10px 16px; 
+            outline: none; 
+            background: var(--gray-input); /* Серый фон, чтобы выделялось */
+            font-size: 0.95rem;
+            transition: 0.2s;
+        }
+        #input:focus { background: white; border-color: #cbd5e0; }
+        
+        #btn { 
+            background: var(--blue); 
+            color: white; 
+            border: none; 
+            border-radius: 50%; 
+            width: 38px; 
+            height: 38px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            display: flex; justify-content: center; align-items: center;
+            font-size: 1.1rem;
+        }
+
+        /* Модалка */
+        #f-overlay { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
+        .f-card { background: white; padding: 25px; border-radius: 20px; width: 85%; max-width: 320px; text-align: center; }
+        textarea { width: 100%; height: 80px; margin: 12px 0; border: 1px solid #ddd; border-radius: 12px; padding: 10px; box-sizing: border-box; resize: none; font-family: inherit; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
+
     <div class="chat-container">
         
         <div class="header">
-            <div class="brand-box">
+            <div class="brand-group">
                 <h1>Centy AI</h1>
-                <span class="badge-role">Методолог</span>
+                <span class="badge">Методолог</span>
             </div>
             <button class="f-btn" onclick="toggleF(true)">Отзыв</button>
         </div>
 
         <div id="chat-box">
              <div class="msg b-msg">
-                💼 <b>Здравствуйте! Я Ваш персональный Методолог Сенти.</b><br><br>
-                Я помогу найти точную информацию в программах и правилах страхования.<br><br>
-                <b>Как со мной работать:</b><br>
-                Нажмите кнопку «Список» ниже или просто напишите мне сообщение. Вы можете ввести только название программы, а можете сразу написать <b>название + Ваш вопрос</b>.<br>
-                👉 <i>Например: «Сроки выплат по ДСИ» или «Риски программы САКТА».</i><br><br>
-                <b>💡 Важные моменты:</b><br>
-                • Если название программы общее, я предложу Вам список на выбор.<br>
-                • Чтобы сменить программу, просто напишите название новой и свой вопрос.<br>
-                • Если что-то будет непонятно в части функционала, пожалуйста, обратитесь к <b>Тамерлану Джумагулову</b>.<br><br>
-                ☝️ <i>Обратите внимание: я справочный помощник и отвечаю строго в рамках программ и правил страхования! Информацию следует перепроверять так как я ИИ</i>
+                <p>💼 <b>Здравствуйте! Я Ваш персональный Методолог Сенти.</b></p>
+                <p>Я помогу найти точную информацию в программах и правилах страхования.</p>
+                
+                <p><b>Как со мной работать:</b></p>
+                <p>Нажмите кнопку «Список» ниже или просто напишите мне сообщение. Вы можете ввести только название программы, а можете сразу написать <b>название + Ваш вопрос</b>.</p>
+                <p>👉 <i>Например: «Сроки выплат по ДСИ» или «Риски программы САКТА».</i></p>
+
+                <p><b>💡 Важные моменты:</b></p>
+                <ul>
+                    <li>Если название программы общее, я предложу Вам список на выбор.</li>
+                    <li>Чтобы сменить программу, просто напишите название новой и свой вопрос.</li>
+                    <li>Если что-то будет непонятно в части функционала, пожалуйста, обратитесь к <b>Тамерлану Джумагулову</b>.</li>
+                </ul>
+
+                <p style="font-size: 0.85em; opacity: 0.8; margin-top: 10px; border-top: 1px solid #cbd5e0; padding-top: 6px;">
+                    ☝️ <i>Обратите внимание: я справочный помощник и отвечаю строго в рамках программ и правил страхования! Информацию следует перепроверять так как я ИИ</i>
+                </p>
             </div>
         </div>
 
-        <form id="form"><input id="input" placeholder="Ваш вопрос..." autocomplete="off"><button type="submit" id="btn">➔</button></form>
+        <form id="form">
+            <input id="input" placeholder="Введите вопрос..." autocomplete="off">
+            <button type="submit" id="btn">➤</button>
+        </form>
         
-        <div id="f-overlay"><div class="f-card"><h3>Ваш отзыв</h3><select id="f-r" style="width:100%; padding:10px; margin-bottom:10px;"><option value="5">⭐⭐⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="3">⭐⭐⭐</option></select><textarea id="f-m" placeholder="Предложения..."></textarea><button onclick="sendF()" style="background:#28a745; color:white; padding:12px; width:100%; border:none; border-radius:12px; font-weight:600;">Отправить</button><button onclick="toggleF(false)" style="background:none; border:none; margin-top:10px; cursor:pointer; color:#666;">Закрыть</button></div></div>
+        <div id="f-overlay">
+            <div class="f-card">
+                <h3>Ваш отзыв</h3>
+                <select id="f-r" style="width:100%; padding:10px; margin-bottom:10px; border-radius:10px; border:1px solid #ddd;">
+                    <option value="5">⭐⭐⭐⭐⭐</option>
+                    <option value="4">⭐⭐⭐⭐</option>
+                    <option value="3">⭐⭐⭐</option>
+                </select>
+                <textarea id="f-m" placeholder="Предложения..."></textarea>
+                <button onclick="sendF()" style="background:#28a745; color:white; padding:12px; width:100%; border:none; border-radius:12px; font-weight:600; cursor:pointer;">Отправить</button>
+                <button onclick="toggleF(false)" style="background:none; border:none; margin-top:10px; cursor:pointer; color:#666;">Закрыть</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -102,41 +255,63 @@
         const uid = 'u_' + Math.random().toString(36).substr(7);
         const box = document.getElementById('chat-box');
 
-        // Рендеринг жирного шрифта при загрузке страницы
         window.onload = () => {
+            // Исправляем жирность, если она прилетит криво
             const m = box.querySelector('.b-msg');
-            m.innerHTML = m.innerHTML.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+            if (m) m.innerHTML = m.innerHTML.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
             renderOptions(["Список"]);
         };
 
         async function send(m) {
-            if (!m) return; add(m, 'u');
+            if (!m) return; 
+            add(m, 'u');
             document.querySelectorAll('.opt-box').forEach(el => el.remove());
+            
             const loader = add('🔍 Ищу в правилах...', 'b');
+            
             try {
                 const r = await fetch(`${url}/webhook`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: m, user_id: uid }) });
-                const d = await r.json(); loader.remove();
-                add(d.reply, 'b'); if (d.options) renderOptions(d.options);
+                const d = await r.json(); 
+                loader.remove();
+                add(d.reply, 'b'); 
+                if (d.options) renderOptions(d.options);
             } catch (e) { loader.textContent = 'Ошибка связи.'; }
         }
 
         function add(t, s) {
             const d = document.createElement('div'); d.className = `msg ${s}-msg`;
             d.innerHTML = t.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-            box.appendChild(d); box.scrollTop = box.scrollHeight; return d;
+            box.appendChild(d); 
+            box.scrollTop = box.scrollHeight; 
+            return d;
         }
 
         function renderOptions(os) {
             const c = document.createElement('div'); c.className = 'opt-box';
-            os.forEach(o => { const b = document.createElement('button'); b.className = 'opt-btn'; b.textContent = o; b.onclick = () => { c.remove(); send(o); }; c.appendChild(b); });
-            box.appendChild(c); box.scrollTop = box.scrollHeight;
+            os.forEach(o => { 
+                const b = document.createElement('button'); 
+                b.className = 'opt-btn'; 
+                b.textContent = o; 
+                b.onclick = () => { c.remove(); send(o); }; 
+                c.appendChild(b); 
+            });
+            box.appendChild(c); 
+            box.scrollTop = box.scrollHeight;
         }
 
-        document.getElementById('form').onsubmit = (e) => { e.preventDefault(); const i = document.getElementById('input'); send(i.value.trim()); i.value = ''; };
+        document.getElementById('form').onsubmit = (e) => { 
+            e.preventDefault(); 
+            const i = document.getElementById('input'); 
+            send(i.value.trim()); 
+            i.value = ''; 
+        };
         
-        // Функции обратной связи
         function toggleF(s) { document.getElementById('f-overlay').style.display = s ? 'flex' : 'none'; }
-        async function sendF() { await fetch(`${url}/feedback`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: uid, message: document.getElementById('f-m').value, rating: document.getElementById('f-r').value }) }); alert('Спасибо!'); toggleF(false); }
+        async function sendF() { 
+            await fetch(`${url}/feedback`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: uid, message: document.getElementById('f-m').value, rating: document.getElementById('f-r').value }) }); 
+            alert('Спасибо!'); 
+            toggleF(false); 
+        }
     </script>
 </body>
 </html>
