@@ -5,43 +5,218 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Centy AI — Методолог</title>
     <style>
-        :root { --blue: #007bff; --bg: #f4f7f9; --text: #2d3748; }
-        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; color: var(--text); }
-        
-        /* Главный контейнер (рамка чата) */
-        .chat-container { width: 100%; max-width: 500px; height: 92vh; background: white; border-radius: 28px; box-shadow: 0 20px 60px rgba(0,0,0,0.08); display: flex; flex-direction: column; overflow: hidden; position: relative; }
-        
+        /* Современная палитра */
+        :root { 
+            --primary: #4f46e5; /* Индиго */
+            --primary-hover: #4338ca;
+            --bg-body: #f1f5f9; /* Светло-серый фон страницы */
+            --bg-chat: #ffffff;
+            --text-main: #1e293b;
+            --text-sec: #64748b;
+            --msg-bot-bg: #f8fafc;
+            --msg-user-bg: #4f46e5;
+            --border-radius: 16px;
+        }
+
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background: var(--bg-body); 
+            margin: 0; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            color: var(--text-main);
+        }
+
+        /* Основной контейнер */
+        .chat-container { 
+            width: 100%; 
+            max-width: 480px; /* Чуть уже для компактности */
+            height: 95vh; /* Максимум высоты */
+            background: var(--bg-chat); 
+            border-radius: 24px; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15); 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden; 
+            position: relative; 
+        }
+
         /* Шапка */
-        .header { background: var(--blue); color: white; padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; }
-        .header h1 { font-size: 1.1rem; margin: 0; font-weight: 700; }
+        .header { 
+            background: #ffffff; 
+            padding: 16px 20px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 1px solid #e2e8f0;
+            z-index: 10;
+        }
         
-        /* Кнопка отзыва в шапке */
-        .f-btn { background: rgba(255,255,255,0.2); border: 1px solid white; color: white; padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 0.75em; transition: 0.2s; }
-        .f-btn:hover { background: white; color: var(--blue); }
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header h1 { 
+            font-size: 1rem; 
+            margin: 0; 
+            font-weight: 700; 
+            color: var(--text-main);
+        }
         
-        /* Область переписки */
-        #chat-box { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+        .status-dot {
+            width: 8px; height: 8px; background: #22c55e; border-radius: 50%;
+        }
+
+        /* Кнопка отзыва (компактная) */
+        .f-btn { 
+            background: transparent; 
+            border: 1px solid #e2e8f0; 
+            color: var(--text-sec); 
+            padding: 6px 12px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-size: 0.75rem; 
+            font-weight: 600;
+            transition: 0.2s; 
+        }
+        .f-btn:hover { background: #f8fafc; color: var(--primary); border-color: var(--primary); }
+
+        /* Область чата */
+        #chat-box { 
+            flex-grow: 1; 
+            padding: 20px; 
+            overflow-y: auto; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 16px; 
+            scroll-behavior: smooth;
+        }
+
+        /* Кастомный скроллбар */
+        #chat-box::-webkit-scrollbar { width: 6px; }
+        #chat-box::-webkit-scrollbar-track { background: transparent; }
+        #chat-box::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+        /* Группировка сообщений (аватар + текст) */
+        .msg-row {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            animation: fadeIn 0.3s ease;
+        }
+        .msg-row.user { justify-content: flex-end; }
+
+        /* Аватарки */
+        .avatar {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .bot-avi { background: #e0e7ff; color: var(--primary); }
+        .user-avi { background: #e2e8f0; color: #64748b; display: none; } /* Скрываем аватар юзера для чистоты, или можно включить */
+
+        /* Пузыри сообщений */
+        .msg { 
+            padding: 12px 16px; 
+            border-radius: 18px; 
+            max-width: 80%; 
+            font-size: 0.9rem; 
+            line-height: 1.5; 
+            position: relative;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
         
-        /* Сообщения */
-        .msg { padding: 14px 18px; border-radius: 20px; max-width: 85%; font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap; animation: slideUp 0.3s ease; }
-        .u-msg { background: var(--blue); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
-        .b-msg { background: #f1f5f9; align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid #e2e8f0; }
+        .b-msg { 
+            background: var(--msg-bot-bg); 
+            color: var(--text-main); 
+            border-bottom-left-radius: 4px; 
+        }
         
-        /* Кнопки вариантов ответа */
-        .opt-box { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px; }
-        .opt-btn { background: white; color: var(--blue); border: 1.5px solid var(--blue); padding: 8px 16px; border-radius: 18px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+        .u-msg { 
+            background: var(--primary); 
+            color: white; 
+            border-bottom-right-radius: 4px; 
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+        }
+
+        /* Опции (кнопки) */
+        .opt-box { display: flex; flex-wrap: wrap; gap: 8px; margin-left: 38px; margin-top: -8px; }
+        .opt-btn { 
+            background: white; 
+            color: var(--primary); 
+            border: 1px solid #e0e7ff; 
+            padding: 8px 14px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-size: 0.8rem; 
+            font-weight: 500; 
+            transition: 0.2s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .opt-btn:hover { background: #e0e7ff; transform: translateY(-1px); }
+
+        /* Область ввода (Footer) */
+        .input-area {
+            padding: 16px 20px;
+            background: white;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        #form { 
+            display: flex; 
+            position: relative;
+            align-items: center;
+        }
+
+        #input { 
+            width: 100%;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0; 
+            border-radius: 24px; 
+            padding: 14px 50px 14px 20px; /* Место справа для кнопки */
+            outline: none; 
+            font-size: 0.95rem;
+            transition: 0.2s;
+            color: var(--text-main);
+        }
+        #input:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+
+        #btn { 
+            position: absolute;
+            right: 6px;
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            border-radius: 50%; 
+            width: 36px; height: 36px; 
+            cursor: pointer; 
+            display: flex; align-items: center; justify-content: center;
+            transition: 0.2s;
+        }
+        #btn:hover { background: var(--primary-hover); transform: scale(1.05); }
+
+        /* Модальное окно */
+        #f-overlay { display: none; position: absolute; inset: 0; background: rgba(255,255,255,0.8); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px); animation: fadeIn 0.2s; }
+        .f-card { background: white; padding: 25px; border-radius: 24px; width: 85%; max-width: 320px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.1); border: 1px solid #f1f5f9; }
+        .f-card h3 { margin-top: 0; color: var(--text-main); }
+        textarea { width: 100%; height: 80px; margin: 15px 0; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; font-family: inherit; resize: none; background: #f8fafc; }
+        textarea:focus { outline: none; border-color: var(--primary); background: white; }
         
-        /* Форма ввода */
-        #form { display: flex; padding: 15px 20px; background: white; border-top: 1px solid #eee; gap: 10px; }
-        #input { flex-grow: 1; border: 2px solid #edf2f7; border-radius: 15px; padding: 12px; outline: none; }
-        #btn { background: var(--blue); color: white; border: none; border-radius: 15px; width: 45px; cursor: pointer; font-weight: bold; }
+        .action-btn { width: 100%; padding: 12px; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 8px; transition: 0.2s; }
+        .btn-send { background: var(--primary); color: white; }
+        .btn-close { background: transparent; color: var(--text-sec); }
+        .btn-close:hover { color: var(--text-main); }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Модальное окно отзыва */
-        #f-overlay { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
-        .f-card { background: white; padding: 30px; border-radius: 24px; width: 80%; text-align: center; }
-        textarea { width: 100%; height: 90px; margin: 15px 0; border: 1px solid #ddd; border-radius: 12px; padding: 10px; box-sizing: border-box; }
-        
-        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Иконка SVG для кнопки отправки */
+        .icon-send { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; margin-left: 2px; }
     </style>
 </head>
 <body>
@@ -49,76 +224,100 @@
     <div class="chat-container">
         
         <div class="header">
-            <h1>Centy AI</h1>
-            <button class="f-btn" onclick="toggleF(true)">Отзыв</button>
+            <div class="header-title">
+                <div class="status-dot"></div>
+                <h1>Centy AI</h1>
+            </div>
+            <button class="f-btn" onclick="toggleF(true)">💬 Отзыв</button>
         </div>
 
         <div id="chat-box">
-            <div class="msg b-msg">
-                💼 <b>Здравствуйте! Я Ваш персональный Методолог Сенти.</b><br><br>
-                Я помогу найти точную информацию в программах и правилах страхования.<br><br>
-                <b>Как со мной работать:</b><br>
-                Нажмите кнопку «Список» ниже или просто напишите мне сообщение. Вы можете ввести только название программы, а можете сразу написать <b>название + Ваш вопрос</b>.<br>
-                👉 <i>Например: «Сроки выплат по ДСИ» или «Риски программы САКТА».</i><br><br>
-                <b>💡 Важные моменты:</b><br>
-                • Если название программы общее, я предложу Вам список на выбор.<br>
-                • Чтобы сменить программу, просто напишите название новой и свой вопрос.<br>
-                • Если что-то будет непонятно в части функционала, пожалуйста, обратитесь к <b>Тамерлану Джумагулову</b>.<br><br>
-                ☝️ <i>Обратите внимание: я справочный помощник и отвечаю строго в рамках программ и правил страхования! Информацию следует перепроверять так как я ИИ</i>
+            <div class="msg-row">
+                <div class="avatar bot-avi">🤖</div>
+                <div class="msg b-msg">
+                    <b>Здравствуйте! Я Методолог Сенти.</b><br><br>
+                    Я помогу найти информацию в программах и правилах страхования.<br><br>
+                    Попробуйте написать: <i>«Сроки выплат по ДСИ»</i> или выберите вариант ниже.
+                </div>
             </div>
         </div>
 
-        <form id="form">
-            <input id="input" placeholder="Ваш вопрос..." autocomplete="off">
-            <button type="submit" id="btn">➔</button>
-        </form>
+        <div class="input-area">
+            <form id="form">
+                <input id="input" placeholder="Задайте вопрос..." autocomplete="off">
+                <button type="submit" id="btn">
+                    <svg class="icon-send" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                </button>
+            </form>
+        </div>
         
         <div id="f-overlay">
             <div class="f-card">
                 <h3>Ваш отзыв</h3>
-                <select id="f-r" style="width:100%; padding:10px; margin-bottom:10px;">
-                    <option value="5">⭐⭐⭐⭐⭐</option>
-                    <option value="4">⭐⭐⭐⭐</option>
-                    <option value="3">⭐⭐⭐</option>
+                <select id="f-r" style="width:100%; padding:10px; margin-bottom:10px; border-radius:12px; border:1px solid #e2e8f0; background:white;">
+                    <option value="5">⭐⭐⭐⭐⭐ Отлично</option>
+                    <option value="4">⭐⭐⭐⭐ Хорошо</option>
+                    <option value="3">⭐⭐⭐ Нормально</option>
                 </select>
-                <textarea id="f-m" placeholder="Предложения..."></textarea>
-                <button onclick="sendF()" style="background:#28a745; color:white; padding:12px; width:100%; border:none; border-radius:12px; font-weight:600;">Отправить</button>
-                <button onclick="toggleF(false)" style="background:none; border:none; margin-top:10px; cursor:pointer; color:#666;">Закрыть</button>
+                <textarea id="f-m" placeholder="Что можно улучшить?"></textarea>
+                <button onclick="sendF()" class="action-btn btn-send">Отправить</button>
+                <button onclick="toggleF(false)" class="action-btn btn-close">Закрыть</button>
             </div>
         </div>
 
-    </div> <script>
+    </div>
+
+    <script>
         const url = 'https://rag-cic-production.up.railway.app';
         const uid = 'u_' + Math.random().toString(36).substr(7);
         const box = document.getElementById('chat-box');
 
-        // Рендеринг жирного шрифта при загрузке страницы
         window.onload = () => {
-            const m = box.querySelector('.b-msg');
-            m.innerHTML = m.innerHTML.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-            renderOptions(["Список"]);
+            renderOptions(["Список программ", "О рисках"]);
         };
 
         async function send(m) {
             if (!m) return; 
+            // Добавляем сообщение юзера
             add(m, 'u');
+            
+            // Убираем старые кнопки
             document.querySelectorAll('.opt-box').forEach(el => el.remove());
-            const loader = add('🔍 Ищу в правилах...', 'b');
+            
+            // Лоадер
+            const loaderRow = document.createElement('div');
+            loaderRow.className = 'msg-row';
+            loaderRow.innerHTML = `<div class="avatar bot-avi">🤖</div><div class="msg b-msg">Wait...</div>`;
+            box.appendChild(loaderRow);
+            box.scrollTop = box.scrollHeight;
+
             try {
                 const r = await fetch(`${url}/webhook`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: m, user_id: uid }) });
                 const d = await r.json(); 
-                loader.remove();
+                
+                loaderRow.remove(); // Удаляем лоадер
                 add(d.reply, 'b'); 
                 if (d.options) renderOptions(d.options);
-            } catch (e) { loader.textContent = 'Ошибка связи.'; }
+            } catch (e) { 
+                loaderRow.querySelector('.msg').textContent = 'Ошибка связи.'; 
+            }
         }
 
         function add(t, s) {
-            const d = document.createElement('div'); d.className = `msg ${s}-msg`;
-            d.innerHTML = t.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-            box.appendChild(d); 
+            const row = document.createElement('div');
+            // Определяем класс для строки (справа или слева)
+            row.className = `msg-row ${s === 'u' ? 'user' : ''}`;
+            
+            // Аватарка (только для бота, чтобы не перегружать)
+            const avi = s === 'u' ? '' : '<div class="avatar bot-avi">🤖</div>';
+            
+            const msgContent = t.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+            
+            row.innerHTML = `${avi}<div class="msg ${s}-msg">${msgContent}</div>`;
+            
+            box.appendChild(row); 
             box.scrollTop = box.scrollHeight; 
-            return d;
+            return row;
         }
 
         function renderOptions(os) {
@@ -141,13 +340,16 @@
             i.value = ''; 
         };
         
-        // Функции обратной связи
         function toggleF(s) { document.getElementById('f-overlay').style.display = s ? 'flex' : 'none'; }
         
         async function sendF() { 
+            const btn = document.querySelector('.btn-send');
+            const originalText = btn.textContent;
+            btn.textContent = '...';
             await fetch(`${url}/feedback`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: uid, message: document.getElementById('f-m').value, rating: document.getElementById('f-r').value }) }); 
-            alert('Спасибо!'); 
+            alert('Спасибо за отзыв!'); 
             toggleF(false); 
+            btn.textContent = originalText;
         }
     </script>
 </body>
