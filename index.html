@@ -6,221 +6,257 @@
     <title>Centy AI — Методолог</title>
     <style>
         :root { 
-            --blue: #007bff; 
-            --blue-dark: #0056b3;
-            --bg: #f0f2f5; 
-            --text-main: #333; 
-            --text-sec: #666;
-            --msg-bg-bot: #f8f9fa;
+            --primary: #007bff; 
+            --primary-dark: #0062cc;
+            --bg-page: #eef2f6; 
+            --bg-card: #ffffff;
+            --bg-bubble-bot: #f2f4f7;
+            --bg-bubble-user: #007bff;
+            --text-main: #1e293b; 
+            --text-sec: #64748b;
         }
 
         body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-            background: var(--bg); 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background: var(--bg-page); 
             margin: 0; 
             display: flex; 
             justify-content: center; 
             align-items: center; 
             height: 100vh; 
-            height: 100dvh; /* Для мобильных браузеров */
+            height: 100dvh; 
             color: var(--text-main); 
         }
 
-        /* Контейнер чата */
+        /* Карточка чата */
         .chat-container { 
             width: 100%; 
-            max-width: 460px; /* Чуть уже для удобства чтения */
-            height: 90vh; 
-            background: white; 
+            max-width: 440px; /* Оптимальная ширина для чтения */
+            height: 92vh; 
+            background: var(--bg-card); 
             border-radius: 20px; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1); 
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08); 
             display: flex; 
             flex-direction: column; 
             overflow: hidden; 
             position: relative; 
         }
 
-        /* Адаптив для мобильных (на весь экран) */
         @media (max-width: 480px) {
             .chat-container { height: 100dvh; border-radius: 0; max-width: 100%; }
         }
 
         /* Шапка */
         .header { 
-            background: var(--blue); 
-            color: white; 
-            padding: 12px 20px; 
+            background: var(--bg-card);
+            border-bottom: 1px solid #e2e8f0;
+            padding: 12px 16px; 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
-            flex-shrink: 0;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            z-index: 10;
         }
-        .header h1 { font-size: 1rem; margin: 0; font-weight: 600; }
+        
+        .header-title {
+            display: flex; flex-direction: column;
+        }
+        .header h1 { font-size: 1rem; margin: 0; font-weight: 700; color: var(--text-main); }
+        .header span { font-size: 0.75rem; color: var(--primary); font-weight: 500; }
+
         .f-btn { 
-            background: rgba(255,255,255,0.15); 
-            border: 1px solid rgba(255,255,255,0.3); 
-            color: white; 
-            padding: 5px 12px; 
-            border-radius: 15px; 
+            background: #eff6ff; 
+            border: 1px solid #bfdbfe; 
+            color: var(--primary); 
+            padding: 6px 12px; 
+            border-radius: 12px; 
             cursor: pointer; 
             font-size: 0.75rem; 
+            font-weight: 600;
             transition: 0.2s; 
         }
-        .f-btn:hover { background: white; color: var(--blue); }
+        .f-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* Область сообщений */
+        /* Область чата */
         #chat-box { 
             flex-grow: 1; 
             padding: 15px; 
             overflow-y: auto; 
             display: flex; 
             flex-direction: column; 
-            gap: 10px; 
-            background: #fff;
+            gap: 8px; /* Компактный отступ между сообщениями */
+            background: #ffffff;
         }
-
-        /* Стиль скроллбара */
+        
         #chat-box::-webkit-scrollbar { width: 4px; }
-        #chat-box::-webkit-scrollbar-thumb { background: #ccc; border-radius: 2px; }
+        #chat-box::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
 
         /* Сообщения */
         .msg { 
             padding: 10px 14px; 
             border-radius: 16px; 
-            max-width: 88%; 
-            font-size: 0.88rem; /* Шрифт чуть меньше */
-            line-height: 1.4; 
+            max-width: 86%; 
+            font-size: 0.9rem; /* 14.4px */
+            line-height: 1.45; 
+            position: relative;
             word-wrap: break-word;
-            animation: fadeIn 0.3s ease; 
-        }
-        
-        .u-msg { 
-            background: var(--blue); 
-            color: white; 
-            align-self: flex-end; 
-            border-bottom-right-radius: 2px; 
+            animation: fadeIn 0.2s ease-out;
         }
         
         .b-msg { 
-            background: var(--msg-bg-bot); 
-            align-self: flex-start; 
-            border-bottom-left-radius: 2px; 
-            border: 1px solid #eef0f2;
+            background: var(--bg-bubble-bot); 
             color: var(--text-main);
+            align-self: flex-start; 
+            border-bottom-left-radius: 4px; 
+        }
+        
+        .u-msg { 
+            background: var(--bg-bubble-user); 
+            color: white; 
+            align-self: flex-end; 
+            border-bottom-right-radius: 4px; 
+            box-shadow: 0 2px 5px rgba(0, 123, 255, 0.2);
         }
 
-        /* Форматирование текста внутри сообщений (для компактности) */
-        .msg p { margin: 0 0 6px 0; }
-        .msg p:last-child { margin: 0; }
-        .msg ul { margin: 5px 0 8px 0; padding-left: 20px; }
-        .msg li { margin-bottom: 4px; }
-        .msg-section { font-weight: 600; margin-top: 10px; margin-bottom: 4px; display: block; color: #000; }
-        .msg-note { font-size: 0.8em; color: var(--text-sec); margin-top: 8px; border-top: 1px solid #eee; padding-top: 6px; }
+        /* Форматирование текста внутри бота */
+        .msg b { font-weight: 600; }
+        .msg p { margin: 6px 0; }
+        .msg p:first-child { margin-top: 0; }
+        .msg p:last-child { margin-bottom: 0; }
+        
+        .section-title { 
+            display: block; 
+            font-weight: 600; 
+            margin-top: 10px; 
+            margin-bottom: 4px; 
+            font-size: 0.9rem;
+            color: #0f172a;
+        }
+        
+        .msg ul { margin: 4px 0 8px 0; padding-left: 20px; }
+        .msg li { margin-bottom: 3px; }
+        
+        .alert-box {
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 0.85rem;
+            color: var(--text-sec);
+            font-style: italic;
+        }
 
-        /* Кнопки опций */
-        .opt-box { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+        /* Кнопки (Chips) */
+        .opt-box { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
         .opt-btn { 
             background: white; 
-            color: var(--blue); 
-            border: 1px solid var(--blue); 
-            padding: 6px 12px; 
-            border-radius: 16px; 
+            color: var(--primary); 
+            border: 1px solid #dbeafe; 
+            padding: 8px 14px; 
+            border-radius: 14px; 
             cursor: pointer; 
-            font-size: 0.8rem; 
+            font-size: 0.85rem; 
             font-weight: 500; 
-            transition: 0.1s; 
+            transition: 0.2s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
         }
-        .opt-btn:hover { background: var(--blue); color: white; }
+        .opt-btn:hover { background: #eff6ff; border-color: var(--primary); transform: translateY(-1px); }
 
-        /* Футер (ввод) */
+        /* Поле ввода */
         #form { 
             display: flex; 
-            padding: 10px 15px; 
+            padding: 12px 16px; 
             background: white; 
-            border-top: 1px solid #eee; 
-            gap: 8px; 
+            border-top: 1px solid #f1f5f9; 
+            gap: 10px; 
             align-items: center;
         }
+        
         #input { 
             flex-grow: 1; 
-            border: 1px solid #ddd; 
+            border: 1px solid transparent; 
             border-radius: 20px; 
             padding: 10px 16px; 
             outline: none; 
-            font-size: 0.9rem; 
-            background: #f9f9f9;
+            font-size: 0.95rem; 
+            background: #f1f5f9; /* Серый фон поля */
+            color: var(--text-main);
             transition: 0.2s;
         }
-        #input:focus { background: white; border-color: var(--blue); }
+        #input:focus { background: white; border-color: #cbd5e1; box-shadow: 0 0 0 3px rgba(0,123,255,0.1); }
+        
         #btn { 
-            background: var(--blue); 
+            background: var(--primary); 
             color: white; 
             border: none; 
             border-radius: 50%; 
             width: 40px; 
             height: 40px; 
             cursor: pointer; 
-            font-size: 1.2rem;
-            display: flex; justify-content: center; align-items: center;
-            padding-bottom: 3px; /* visual fix */
+            font-weight: bold; 
+            display: flex; align-items: center; justify-content: center;
+            transition: 0.2s;
         }
+        #btn:hover { background: var(--primary-dark); transform: scale(1.05); }
 
-        /* Модальное окно */
-        #f-overlay { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
-        .f-card { background: white; padding: 20px; border-radius: 16px; width: 85%; max-width: 300px; text-align: center; }
-        .f-card h3 { margin: 0 0 15px 0; font-size: 1.1rem; }
-        textarea { width: 100%; height: 70px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; padding: 8px; box-sizing: border-box; resize: none; font-family: inherit; }
+        /* Модалка отзыва */
+        #f-overlay { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.4); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(3px); animation: fadeIn 0.2s; }
+        .f-card { background: white; padding: 24px; border-radius: 20px; width: 85%; max-width: 320px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.15); }
+        .f-card h3 { margin: 0 0 15px 0; color: var(--text-main); font-size: 1.1rem; }
         
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
     <div class="chat-container">
         <div class="header">
-            <h1>Centy AI</h1>
+            <div class="header-title">
+                <h1>Centy AI</h1>
+                <span>Методолог</span>
+            </div>
             <button class="f-btn" onclick="toggleF(true)">Отзыв</button>
         </div>
 
         <div id="chat-box">
             <div class="msg b-msg">
-                <p>💼 <b>Здравствуйте! Я Ваш персональный Методолог Сенти.</b></p>
+                💼 <b>Здравствуйте! Я Ваш персональный Методолог Сенти.</b>
+                
                 <p>Я помогу найти точную информацию в программах и правилах страхования.</p>
 
-                <span class="msg-section">Как со мной работать:</span>
+                <span class="section-title">Как со мной работать:</span>
                 <p>Нажмите кнопку «Список» ниже или просто напишите мне сообщение. Вы можете ввести только название программы, а можете сразу написать <b>название + Ваш вопрос</b>.</p>
                 <p>👉 <i>Например: «Сроки выплат по ДСИ» или «Риски программы САКТА».</i></p>
 
-                <span class="msg-section">💡 Важные моменты:</span>
+                <span class="section-title">💡 Важные моменты:</span>
                 <ul>
                     <li>Если название программы общее, я предложу Вам список на выбор.</li>
                     <li>Чтобы сменить программу, просто напишите название новой и свой вопрос.</li>
                     <li>Если что-то будет непонятно в части функционала, пожалуйста, обратитесь к <b>Тамерлану Джумагулову</b>.</li>
                 </ul>
 
-                <div class="msg-note">
-                    ☝️ <i>Обратите внимание: я справочный помощник и отвечаю строго в рамках программ и правил страхования! Информацию следует перепроверять так как я ИИ</i>
+                <div class="alert-box">
+                    ☝️ Обратите внимание: я справочный помощник и отвечаю строго в рамках программ и правил страхования! Информацию следует перепроверять так как я ИИ
                 </div>
             </div>
         </div>
 
         <form id="form">
-            <input id="input" placeholder="Введите вопрос..." autocomplete="off">
-            <button type="submit" id="btn">➤</button>
+            <input id="input" placeholder="Сообщение..." autocomplete="off">
+            <button type="submit" id="btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
         </form>
         
         <div id="f-overlay">
             <div class="f-card">
                 <h3>Ваш отзыв</h3>
-                <select id="f-r" style="width:100%; padding:8px; margin-bottom:10px; border-radius:8px; border:1px solid #ccc;">
+                <select id="f-r" style="width:100%; padding:10px; margin-bottom:12px; border-radius:12px; border:1px solid #cbd5e1; outline:none; background:#f8fafc;">
                     <option value="5">⭐⭐⭐⭐⭐</option>
                     <option value="4">⭐⭐⭐⭐</option>
                     <option value="3">⭐⭐⭐</option>
                 </select>
-                <textarea id="f-m" placeholder="Предложения..."></textarea>
-                <button onclick="sendF()" style="background:#28a745; color:white; padding:10px; width:100%; border:none; border-radius:10px; font-weight:600; cursor:pointer;">Отправить</button>
-                <button onclick="toggleF(false)" style="background:none; border:none; margin-top:8px; cursor:pointer; color:#777; font-size:0.85rem;">Закрыть</button>
+                <textarea id="f-m" placeholder="Напишите предложения..." style="width:100%; height:80px; margin-bottom:12px; border:1px solid #cbd5e1; border-radius:12px; padding:10px; box-sizing:border-box; resize:none; font-family:inherit; outline:none;"></textarea>
+                <button onclick="sendF()" style="background:#22c55e; color:white; padding:12px; width:100%; border:none; border-radius:12px; font-weight:600; cursor:pointer;">Отправить</button>
+                <button onclick="toggleF(false)" style="background:transparent; color:#64748b; border:none; margin-top:8px; cursor:pointer; font-weight:500;">Закрыть</button>
             </div>
         </div>
     </div>
@@ -230,11 +266,11 @@
         const uid = 'u_' + Math.random().toString(36).substr(7);
         const box = document.getElementById('chat-box');
 
-        // Жирный шрифт и кнопка "Список" при старте
+        // Инициализация при загрузке
         window.onload = () => {
+            // Если вдруг скрипт перерисовывает b-msg, этот код убедится, что **text** станет жирным
             const m = box.querySelector('.b-msg');
-            // Если вдруг скрипт вставляет **text**, заменим на bold, но в статичном HTML мы уже это сделали.
-            m.innerHTML = m.innerHTML.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+            if(m) m.innerHTML = m.innerHTML.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
             renderOptions(["Список"]);
         };
 
@@ -243,20 +279,26 @@
             add(m, 'u');
             document.querySelectorAll('.opt-box').forEach(el => el.remove());
             
-            const loader = add('🔍 Ищу в правилах...', 'b');
-            
+            // Лоадер
+            const loader = document.createElement('div'); 
+            loader.className = 'msg b-msg'; 
+            loader.innerHTML = '<i>🔍 Ищу в правилах...</i>';
+            box.appendChild(loader);
+            box.scrollTop = box.scrollHeight;
+
             try {
                 const r = await fetch(`${url}/webhook`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: m, user_id: uid }) });
                 const d = await r.json(); 
                 loader.remove();
                 add(d.reply, 'b'); 
                 if (d.options) renderOptions(d.options);
-            } catch (e) { loader.textContent = 'Ошибка связи.'; }
+            } catch (e) { 
+                loader.innerHTML = 'Ошибка связи.'; 
+            }
         }
 
         function add(t, s) {
             const d = document.createElement('div'); d.className = `msg ${s}-msg`;
-            // Поддержка **жирного** текста от сервера
             d.innerHTML = t.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
             box.appendChild(d); 
             box.scrollTop = box.scrollHeight; 
