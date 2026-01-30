@@ -179,19 +179,25 @@
             align-items: center;
         }
 
-        /* Обертка для инпута и призрачного текста */
         .input-wrapper {
             position: relative;
             flex-grow: 1;
             display: flex;
             align-items: center;
+            background: var(--input-bg);
+            border-radius: 24px;
+            transition: all 0.2s ease;
         }
         
-        /* Общие стили для инпута и подсказки (чтобы они идеально накладывались) */
+        .input-wrapper:focus-within {
+            background: white;
+            box-shadow: 0 0 0 4px rgba(0,123,255,0.1); 
+        }
+
         .input-shared {
             width: 100%;
             padding: 14px 20px; 
-            font-family: 'Inter', system-ui, -apple-system, sans-serif; /* Важно одинаковый шрифт */
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
             font-size: 1rem;
             line-height: 1.5;
             border-radius: 24px;
@@ -204,11 +210,11 @@
             position: absolute;
             top: 0;
             left: 0;
-            color: #adb5bd; /* Цвет подсказки (серый) */
+            color: #adb5bd; 
             background: transparent;
-            border: 2px solid transparent; /* Чтобы отступы совпадали с инпутом */
-            pointer-events: none; /* Клики проходят сквозь него */
-            white-space: pre; /* Сохраняет пробелы */
+            border: 2px solid transparent; 
+            pointer-events: none; 
+            white-space: pre; 
             overflow: hidden;
             z-index: 1;
         }
@@ -217,26 +223,12 @@
         #input { 
             position: relative;
             z-index: 2;
-            background: transparent; /* Прозрачный фон, чтобы видеть текст сзади */
+            background: transparent; 
             border: 2px solid transparent; 
             outline: none; 
             color: var(--text-main);
-            transition: border-color 0.2s ease, background 0.2s ease;
-        }
-        
-        /* Фон задаем обертке или меняем состояние */
-        .input-wrapper {
-            background: var(--input-bg);
-            border-radius: 24px;
-        }
-        
-        /* Фокус на инпуте подсвечивает обертку (имитация) */
-        .input-wrapper:focus-within {
-            background: white;
-            box-shadow: 0 0 0 4px rgba(0,123,255,0.1); 
         }
         #input:focus { border-color: var(--blue); }
-
         
         #btn { 
             background: var(--blue); 
@@ -257,7 +249,6 @@
         }
         #btn:hover { transform: scale(1.05); background: var(--blue-grad-end); }
 
-        /* Модалка */
         #f-overlay { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
         .f-card { background: white; padding: 30px; border-radius: 24px; width: 85%; max-width: 350px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
         .f-card h3 { margin: 0 0 20px 0; font-size: 1.2rem; }
@@ -292,9 +283,18 @@
                 <ul>
                     <li>Если название программы общее, я предложу Вам список на выбор.</li>
                     <li>Чтобы сменить программу, просто напишите название новой и свой вопрос.</li>
-                    <li><b>Сейчас я консультирую по ограниченному числу программ</b>, но мой список постоянно пополняется. Все доступные программы и правила вы можете увидеть, нажав кнопку <b>«Список»</b>.</li>
+                    <li><b>Сейчас я консультирую по ограниченному числу программ</b>, но мой список постоянно пополняется.</li>
                     <li>Если что-то будет непонятно в части функционала, пожалуйста, обратитесь к <b>Тамерлану Джумагулову</b>.</li>
                 </ul>
+
+                <div style="margin-top: 15px; padding-top: 12px; border-top: 1px solid #e2e8f0;">
+                    <p style="color: var(--blue); margin-bottom: 4px;"><b>✨ Умный ввод (Т9)</b></p>
+                    <p style="font-size: 0.9em; color: var(--text-light); line-height: 1.4;">
+                        Я подсказываю слова серым цветом прямо в строке.<br>
+                        Нажмите <b>Пробел</b> или <b>Tab</b>, чтобы дописать слово.<br>
+                        <i>Если подсказка не нужна — просто пишите дальше.</i>
+                    </p>
+                </div>
 
                 <p style="font-size: 0.85em; color: var(--text-light); margin-top: 15px; border-top: 1px solid #e2e8f0; padding-top: 10px;">
                     ☝️ <i>Обратите внимание: я справочный помощник и отвечаю строго в рамках программ и правил страхования! Информацию следует перепроверять так как я ИИ</i>
@@ -367,63 +367,35 @@
         const ghostEl = document.getElementById('ghost-input');
         let currentSuggestion = '';
 
-        // Функция поиска совпадения
-        function checkSuggestion(val) {
-            if (!val) return '';
-            const lastWord = val.split(' ').pop(); // Берем последнее слово
-            if (lastWord.length < 2) return ''; // Ищем только от 2 букв
-
-            // Ищем слово, которое начинается так же (регистронезависимо)
-            const match = t9Dictionary.find(word => 
-                word.toLowerCase().startsWith(lastWord.toLowerCase())
-            );
-
-            if (match) {
-                // Если пользователь написал "strah", а слово "Strahovanie"
-                // Нам нужно вернуть часть, которую пользователь еще НЕ написал, но с учетом регистра словаря
-                // Пример: User: "strah", Match: "Strahovanie". Ghost должен показать "Strahovanie"
-                // Но мы должны наложить это визуально. 
-                // Проще всего: вернуть полное слово "Strahovanie", а в input сделать текст прозрачным? Нет.
-                // Лучший вариант Ghost Text: 
-                // Текст призрака = "Весь введенный текст" - "последнее слово" + "Слово из словаря"
-                
-                const prefix = val.substring(0, val.lastIndexOf(lastWord));
-                // Сохраняем регистр пользователя для начала слова, если оно совпадает? 
-                // Или навязываем регистр словаря? Обычно T9 навязывает правильный (с большой буквы).
-                return prefix + match;
-            }
-            return '';
-        }
-
         inputEl.addEventListener('input', (e) => {
             const val = e.target.value;
-            const suggestion = checkSuggestion(val);
+            const lastWordUser = val.split(' ').pop();
+
+            if (!lastWordUser || lastWordUser.length < 2) {
+                ghostEl.textContent = '';
+                currentSuggestion = '';
+                return;
+            }
+
+            // Ищем совпадение
+            const matchWord = t9Dictionary.find(w => w.toLowerCase().startsWith(lastWordUser.toLowerCase()));
             
-            if (suggestion && suggestion.length > val.length) {
-                // Показываем подсказку.
-                // ВАЖНО: Ghost text должен совпадать с инпутом в начале
-                // Но если регистр отличается (user: kasko, dict: КАСКО), будет визуальный сдвиг.
-                // Трюк: Ghost text всегда содержит то, что в словаре. 
-                // Пользователь видит черный текст инпута поверх серого текста призрака.
-                // Чтобы это работало красиво, нужно чтобы начало совпадало идеально.
-                // Если user пишет с маленькой, а dict с большой - будет "грязь".
-                // Решение: Призрак показывает начало в том же регистре, что и юзер, а конец - как в словаре?
-                // Сложно. 
-                // Упрощение: Призрак содержит ТЕКСТ ПОЛЬЗОВАТЕЛЯ + ХВОСТ ОТ СЛОВАРЯ.
-                
-                const lastWordUser = val.split(' ').pop();
-                const matchWord = t9Dictionary.find(w => w.toLowerCase().startsWith(lastWordUser.toLowerCase()));
-                
-                if (matchWord) {
-                    // Хвост слова (то, что не дописано)
-                    const ending = matchWord.slice(lastWordUser.length);
-                    // Призрак = То что ввел юзер + Хвост
-                    ghostEl.textContent = val + ending;
-                    currentSuggestion = matchWord; // Запоминаем полное правильное слово
-                } else {
-                    ghostEl.textContent = '';
-                    currentSuggestion = '';
+            if (matchWord) {
+                // ЛОГИКА КАПИТАЛИЗАЦИИ
+                let finalSuggestion = matchWord;
+
+                // Проверяем: если пользователь пишет с маленькой буквы, 
+                // то и подсказку делаем с маленькой (уважаем ввод пользователя)
+                if (lastWordUser[0] === lastWordUser[0].toLowerCase()) {
+                    finalSuggestion = matchWord.toLowerCase();
                 }
+
+                // Хвост слова (то, что не дописано)
+                const ending = finalSuggestion.slice(lastWordUser.length);
+                
+                // Призрак = То что ввел юзер + Хвост
+                ghostEl.textContent = val + ending;
+                currentSuggestion = finalSuggestion;
             } else {
                 ghostEl.textContent = '';
                 currentSuggestion = '';
@@ -434,17 +406,13 @@
         inputEl.addEventListener('keydown', (e) => {
             if ((e.key === 'Tab' || e.key === 'ArrowRight' || e.key === ' ') && currentSuggestion) {
                 const val = inputEl.value;
-                const lastWordUser = val.split(' ').pop();
                 
                 // Если призрак активен (есть хвост)
                 if (ghostEl.textContent.length > val.length) {
-                    e.preventDefault(); // Остановить обычный пробел/таб
-                    
-                    // Заменяем последнее слово на полное слово из словаря (чтобы исправить регистр, если надо)
-                    // Или просто дописываем хвост? 
-                    // Если мы хотим автоисправление (каско -> КАСКО), то берем currentSuggestion целиком.
+                    e.preventDefault(); 
                     
                     const words = val.split(' ');
+                    // Заменяем последнее слово на suggestion (с правильным регистром)
                     words[words.length - 1] = currentSuggestion;
                     
                     // Добавляем пробел после автодополнения
