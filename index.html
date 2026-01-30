@@ -288,11 +288,10 @@
                 </ul>
 
                 <div style="margin-top: 15px; padding-top: 12px; border-top: 1px solid #e2e8f0;">
-                    <p style="color: var(--blue); margin-bottom: 4px;"><b>✨ Умный ввод (Т9)</b></p>
+                    <p style="color: var(--blue); margin-bottom: 4px;"><b>✨ Умный ввод</b></p>
                     <p style="font-size: 0.9em; color: var(--text-light); line-height: 1.4;">
-                        Я подсказываю слова серым цветом прямо в строке.<br>
-                        Нажмите <b>Пробел</b> или <b>Tab</b>, чтобы дописать слово.<br>
-                        <i>Если подсказка не нужна — просто пишите дальше.</i>
+                        Серый текст — это подсказка.<br>
+                        Нажмите <b>Пробел</b> или <b>→</b>, чтобы принять её.
                     </p>
                 </div>
 
@@ -377,23 +376,17 @@
                 return;
             }
 
-            // Ищем совпадение
             const matchWord = t9Dictionary.find(w => w.toLowerCase().startsWith(lastWordUser.toLowerCase()));
             
             if (matchWord) {
                 // ЛОГИКА КАПИТАЛИЗАЦИИ
                 let finalSuggestion = matchWord;
-
-                // Проверяем: если пользователь пишет с маленькой буквы, 
-                // то и подсказку делаем с маленькой (уважаем ввод пользователя)
+                // Если с маленькой, то и подсказка с маленькой
                 if (lastWordUser[0] === lastWordUser[0].toLowerCase()) {
                     finalSuggestion = matchWord.toLowerCase();
                 }
 
-                // Хвост слова (то, что не дописано)
                 const ending = finalSuggestion.slice(lastWordUser.length);
-                
-                // Призрак = То что ввел юзер + Хвост
                 ghostEl.textContent = val + ending;
                 currentSuggestion = finalSuggestion;
             } else {
@@ -406,25 +399,16 @@
         inputEl.addEventListener('keydown', (e) => {
             if ((e.key === 'Tab' || e.key === 'ArrowRight' || e.key === ' ') && currentSuggestion) {
                 const val = inputEl.value;
-                
-                // Если призрак активен (есть хвост)
                 if (ghostEl.textContent.length > val.length) {
                     e.preventDefault(); 
-                    
                     const words = val.split(' ');
-                    // Заменяем последнее слово на suggestion (с правильным регистром)
                     words[words.length - 1] = currentSuggestion;
-                    
-                    // Добавляем пробел после автодополнения
                     inputEl.value = words.join(' ') + ' '; 
-                    
                     ghostEl.textContent = '';
                     currentSuggestion = '';
                 }
             }
         });
-
-        // --- КОНЕЦ ЛОГИКИ T9 ---
 
         window.onload = () => {
             const m = box.querySelector('.b-msg');
@@ -436,7 +420,6 @@
             if (!m) return; 
             add(m, 'u');
             
-            // Очистка полей и T9
             inputEl.value = '';
             ghostEl.textContent = '';
             currentSuggestion = '';
