@@ -284,6 +284,7 @@
                     <li>Если название программы общее, я предложу Вам список на выбор.</li>
                     <li>Чтобы сменить программу, просто напишите название новой и свой вопрос.</li>
                     <li><b>Сейчас я консультирую по ограниченному числу программ</b>, но мой список постоянно пополняется.</li>
+                    <li>✨ <b>Умный ввод:</b> серый текст — подсказка (жмите <b>→</b>).</li>
                     <li>Если что-то будет непонятно в части функционала, пожалуйста, обратитесь к <b>Тамерлану Джумагулову</b>.</li>
                 </ul>
 
@@ -291,7 +292,7 @@
                     <p style="color: var(--blue); margin-bottom: 4px;"><b>✨ Умный ввод</b></p>
                     <p style="font-size: 0.9em; color: var(--text-light); line-height: 1.4;">
                         Серый текст — это подсказка.<br>
-                        Нажмите <b>Пробел</b> или <b>→</b>, чтобы принять её.
+                        Нажмите <b>→</b>, чтобы принять её.
                     </p>
                 </div>
 
@@ -395,9 +396,9 @@
             }
         });
 
-        // Обработка клавиш (Tab, Space, Right Arrow)
+        // Обработка клавиш (Только ArrowRight)
         inputEl.addEventListener('keydown', (e) => {
-            if ((e.key === 'Tab' || e.key === 'ArrowRight' || e.key === ' ') && currentSuggestion) {
+            if (e.key === 'ArrowRight' && currentSuggestion) {
                 const val = inputEl.value;
                 if (ghostEl.textContent.length > val.length) {
                     e.preventDefault(); 
