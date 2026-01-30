@@ -30,11 +30,11 @@
         /* 1. УВЕЛИЧЕНА ШИРИНА КОНТЕЙНЕРА */
         .chat-container { 
             width: 100%; 
-            max-width: 650px; /* Было меньше, стало шире */
+            max-width: 650px; 
             height: 92vh; 
             background: white; 
             border-radius: 24px; 
-            box-shadow: 0 25px 80px rgba(0,0,0,0.12); /* Мягкая глубокая тень */
+            box-shadow: 0 25px 80px rgba(0,0,0,0.12); 
             display: flex; 
             flex-direction: column; 
             overflow: hidden; 
@@ -42,7 +42,7 @@
             border: 1px solid rgba(255,255,255,0.5);
         }
 
-        /* Адаптив: на мобильном всё так же во весь экран */
+        /* Адаптив */
         @media (max-width: 680px) {
             .chat-container {
                 height: 100dvh;
@@ -52,11 +52,11 @@
             }
         }
         
-        /* 2. УЛУЧШЕННАЯ ШАПКА И ТЕКСТ */
+        /* 2. ШАПКА */
         .header { 
             background: linear-gradient(135deg, var(--blue-grad-start), var(--blue-grad-end)); 
             color: white; 
-            padding: 18px 25px; /* Чуть больше воздуха */
+            padding: 18px 25px; 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
@@ -71,7 +71,7 @@
         }
 
         .header h1 { 
-            font-size: 1.5rem; /* УВЕЛИЧЕН ШРИФТ */
+            font-size: 1.5rem; 
             margin: 0; 
             font-weight: 800; 
             letter-spacing: -0.5px;
@@ -81,7 +81,7 @@
         .badge {
             background: rgba(255,255,255,0.25);
             color: white;
-            font-size: 0.85rem; /* УВЕЛИЧЕН БЕЙДЖ */
+            font-size: 0.85rem; 
             padding: 5px 10px;
             border-radius: 8px;
             font-weight: 600;
@@ -107,7 +107,7 @@
         /* ЧАТ */
         #chat-box { 
             flex-grow: 1; 
-            padding: 20px 25px; /* Больше отступы по бокам */
+            padding: 20px 25px; 
             overflow-y: auto; 
             display: flex; 
             flex-direction: column; 
@@ -115,7 +115,6 @@
             background: #ffffff;
         }
         
-        /* Скроллбар - эстетичный */
         #chat-box::-webkit-scrollbar { width: 6px; }
         #chat-box::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
         #chat-box::-webkit-scrollbar-track { background: transparent; }
@@ -123,13 +122,13 @@
         .msg { 
             padding: 12px 18px; 
             border-radius: 18px; 
-            max-width: 85%; /* Ограничиваем ширину сообщения для читаемости */
-            font-size: 0.90rem; /* УМЕНЬШЕН ШРИФТ (было 0.95rem) */
+            max-width: 85%; 
+            font-size: 0.90rem; 
             line-height: 1.5; 
             word-wrap: break-word;
             animation: slideUp 0.3s ease-out; 
             position: relative;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.04); /* Легкая тень */
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04); 
         }
         
         .u-msg { 
@@ -137,7 +136,7 @@
             color: white; 
             align-self: flex-end; 
             border-bottom-right-radius: 4px; 
-            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2); /* Тень для сообщения юзера */
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2); 
         }
         
         .b-msg { 
@@ -148,14 +147,12 @@
             color: var(--text-main);
         }
 
-        /* Форматирование текста бота */
         .msg p { margin: 8px 0; }
         .msg p:first-child { margin-top: 0; }
         .msg p:last-child { margin-bottom: 0; }
         .msg ul { margin: 6px 0 10px 0; padding-left: 20px; }
         .msg li { margin-bottom: 5px; }
 
-        /* Кнопки опций */
         .opt-box { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; padding-left: 5px; }
         .opt-btn { 
             background: white; 
@@ -176,7 +173,7 @@
             box-shadow: 0 4px 8px rgba(0,123,255,0.25); 
         }
 
-        /* 3. УЛУЧШЕННЫЙ FOOTER (ВВОД) */
+        /* 3. FOOTER + T9 СТИЛИ */
         #form { 
             display: flex; 
             padding: 15px 20px; 
@@ -184,7 +181,37 @@
             border-top: 1px solid #edf2f7; 
             gap: 12px; 
             align-items: center;
+            position: relative; /* База для T9 */
         }
+
+        /* СТИЛИ T9 */
+        #t9-box {
+            position: absolute;
+            bottom: 85px; /* Расположение над полем ввода */
+            left: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 -5px 25px rgba(0,0,0,0.1);
+            display: none; 
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 100;
+            border: 1px solid #eef2f6;
+            min-width: 160px;
+            max-width: 300px;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+        .t9-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            border-bottom: 1px solid #f0f2f5;
+            transition: background 0.1s;
+        }
+        .t9-item:hover { background: #f0f7ff; color: var(--blue); font-weight: 500; }
+        .t9-item:last-child { border-bottom: none; }
         
         #input { 
             flex-grow: 1; 
@@ -267,6 +294,8 @@
         </div>
 
         <form id="form">
+            <div id="t9-box"></div>
+            
             <input id="input" placeholder="Введите ваш вопрос..." autocomplete="off">
             <button type="submit" id="btn">➤</button>
         </form>
@@ -291,6 +320,92 @@
         const uid = 'u_' + Math.random().toString(36).substr(7);
         const box = document.getElementById('chat-box');
 
+        // --- БОЛЬШОЙ СЛОВАРЬ Т9 ---
+        // Смесь страховых терминов и обычных слов для автокоррекции
+        const t9Dictionary = [
+            // Страхование (Приоритет)
+            "САКТА", "ДСИ", "ОГПО", "КАСКО", "Сроки", "Выплаты", "Риски", 
+            "Правила", "Тарифы", "Франшиза", "Ущерб", "ДТП", "Медицина", 
+            "Заявление", "Документы", "Страхователь", "Страховщик", "Лимит", "Период", 
+            "Договор", "Расторжение", "Исключения", "Страховая сумма", "Несчастный случай",
+            "Андеррайтинг", "Агент", "Брокер", "Бонус", "Малус", "Выгодоприобретатель",
+            "Зеленая карта", "Урегулирование", "Премия", "Полис", "Возмещение",
+            "Гражданская ответственность", "Груз", "Имущество", "Жизнь", "Здоровье",
+            "Перестрахование", "Регресс", "Суброгация", "Тотал", "Угон", "Хищение",
+            "Экспертиза", "Оценка", "Аварийный комиссар", "Осмотр",
+            
+            // Обычные слова (Общение и вопросы)
+            "Здравствуйте", "Привет", "Добрый день", "Подскажите", "Пожалуйста", "Спасибо",
+            "Вопрос", "Ответ", "Помощь", "Информация", "Как", "Где", "Когда", "Почему", "Зачем",
+            "Сколько", "Стоимость", "Цена", "Оплата", "Расчет", "Пример", "Список",
+            "Машина", "Автомобиль", "Дом", "Квартира", "Здание", "Ремонт", "Детали",
+            "Справка", "Полиция", "Протокол", "Суд", "Юрист", "Клиент", "Сотрудник",
+            "Ошибка", "Проблема", "Статус", "Проверка", "Запрос", "Условия", "Пункты",
+            "Направление", "СТО", "Запчасти", "Износ", "Год", "Месяц", "День", "Неделя",
+            "Случай", "Обстоятельства", "Виновник", "Потерпевший", "Третьи лица",
+            "Родственники", "Наследники", "Паспорт", "Удостоверение", "Техпаспорт",
+            "Диагностика", "Лечение", "Травма", "Госпитализация", "Смерть", "Инвалидность",
+            "Амбулаторное", "Стационар", "Медикаменты", "Рецепт", "Врач", "Больница",
+            "За границей", "Путешествие", "Багаж", "Рейс", "Задержка", "Отмена",
+            "Работа", "Зарплата", "Доход", "Увольнение", "Банк", "Кредит", "Ипотека",
+            "Залог", "Обременение", "Действие", "Территория", "Казахстан", "Алматы", "Астана",
+            "Регион", "Город", "Область", "Телефон", "Email", "Адрес", "Офис", "Время",
+            "Сейчас", "Срочно", "Быстро", "Долго", "Ожидание", "Результат", "Решение",
+            "Отказ", "Согласие", "Подпись", "Печать", "Копия", "Оригинал", "Скан", "Фото"
+        ];
+        // -------------------------
+
+        const t9Box = document.getElementById('t9-box');
+        const inpField = document.getElementById('input');
+
+        inpField.addEventListener('input', function() {
+            const val = this.value;
+            // Берем последнее слово в строке
+            const words = val.split(' ');
+            const currentWord = words[words.length - 1];
+
+            // Не ищем, если слово слишком короткое
+            if (!currentWord || currentWord.length < 2) {
+                t9Box.style.display = 'none';
+                return;
+            }
+
+            // Фильтрация: ищем совпадения по началу слова (без учета регистра)
+            const matches = t9Dictionary.filter(word => 
+                word.toLowerCase().startsWith(currentWord.toLowerCase())
+            );
+
+            // Если есть совпадения
+            if (matches.length > 0) {
+                t9Box.innerHTML = '';
+                // Показываем максимум 4 подсказки, чтобы не заслонять экран
+                matches.slice(0, 4).forEach(match => {
+                    const div = document.createElement('div');
+                    div.className = 't9-item';
+                    div.textContent = match; 
+                    
+                    div.onclick = () => {
+                        // Заменяем последнее слово на выбранное из словаря
+                        words[words.length - 1] = match;
+                        inpField.value = words.join(' ') + ' '; // Добавляем пробел
+                        t9Box.style.display = 'none';
+                        inpField.focus();
+                    };
+                    t9Box.appendChild(div);
+                });
+                t9Box.style.display = 'flex';
+            } else {
+                t9Box.style.display = 'none';
+            }
+        });
+
+        // Скрываем Т9 при клике в любое место, кроме поля и самого Т9
+        document.addEventListener('click', (e) => {
+            if (!t9Box.contains(e.target) && e.target !== inpField) {
+                t9Box.style.display = 'none';
+            }
+        });
+
         window.onload = () => {
             const m = box.querySelector('.b-msg');
             if (m) m.innerHTML = m.innerHTML.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
@@ -300,6 +415,7 @@
         async function send(m) {
             if (!m) return; 
             add(m, 'u');
+            t9Box.style.display = 'none';
             document.querySelectorAll('.opt-box').forEach(el => el.remove());
             
             const loader = add('🔍 Ищу в правилах...', 'b');
