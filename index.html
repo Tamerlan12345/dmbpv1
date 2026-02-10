@@ -49,14 +49,11 @@
                 border-radius: 0;
                 border: none;
             }
-
-            /* Поднимаем поле ввода выше на мобильных */
+            
+            /* Поднимаем поле отправки на 4см вверх на мобильных */
             #form {
-                padding-bottom: 40px !important; /* Увеличенный отступ снизу */
-                padding-top: 15px;
-                border-top-left-radius: 20px; /* Небольшое скругление для красоты */
-                border-top-right-radius: 20px;
-                box-shadow: 0 -4px 20px rgba(0,0,0,0.03); /* Легкая тень сверху */
+                margin-bottom: 4cm;
+                border-bottom: 1px solid #edf2f7; /* Добавляем линию снизу для красоты */
             }
         }
         
@@ -231,7 +228,7 @@
 
         /* Реальный инпут (сверху) */
         #input { 
-            position: relative; 
+            position: relative;
             z-index: 2;
             background: transparent; 
             border: 2px solid transparent; 
